@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+{% block title %}Yammy - Retrieve All Orders {% endblock %}
+
+{% block content %}
+<h1 class="display-4">View All Orders</h1>
+
+<div>
+  {% if count == 0 %}
+  <p>There are no orders.</p>
+  {% elif count == 1 %}
+  <p>There is 1 order.</p>
+  {% else %}
+  <p>There are {{ count }} orders.</p>
+  {% endif %}
+</div>
+
+<div style="overflow-x:auto;">
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>Order ID</th>
+        <th>User ID</th>
+        <th>First Name</th>
+        <th>Last Name</th>
+        <th>Gender</th>
+        <th>Email</th>
+        <th>Phone Number</th>
+        <th>Address</th>
+        <th>Region</th>
+        <th>Rating</th>
+        <th>Preference</th>
+        <th>Combination</th>
+        <th>MondayB</th>
+        <th>MondayL</th>
+        <th>MondayD</th>
+        <th>TuesdayB</th>
+        <th>TuesdayL</th>
+        <th>TuesdayD</th>
+        <th>WednesdayB</th>
+        <th>WednesdayL</th>
+        <th>WednesdayD</th>
+        <th>ThursdayB</th>
+        <th>ThursdayL</th>
+        <th>ThursdayD</th>
+        <th>FridayB</th>
+        <th>FridayL</th>
+        <th>FridayD</th>
+        <th>Price</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+
+    {% for order in order_list %}
+      <tr>
+        <td>{{ order.get_order_id() }}</td>
+        <td>{{ order.get_user_id() }}</td>
+        <td>{{ order.get_first_name() }}</td>
+        <td>{{ order.get_last_name() }}</td>
+        <td>{{ order.get_gender() }}</td>
+        <td>{{ order.get_email() }}</td>
+        <td>{{ order.get_phone_number() }}</td>
+        <td>{{ order.get_address() }}</td>
+        <td>{{ order.get_region() }}</td>
+        <td>{{ order.get_rating() }}</td>
+        <td>{{ order.get_preference() }}</td>
+        <td>{{ order.get_combination() }}</td>
+        <td>{{ order.get_MondayB() }}</td>
+        <td>{{ order.get_MondayL() }}</td>
+        <td>{{ order.get_MondayD() }}</td>
+        <td>{{ order.get_TuesdayB() }}</td>
+        <td>{{ order.get_TuesdayL() }}</td>
+        <td>{{ order.get_TuesdayD() }}</td>
+        <td>{{ order.get_WednesdayB() }}</td>
+        <td>{{ order.get_WednesdayL() }}</td>
+        <td>{{ order.get_WednesdayD() }}</td>
+        <td>{{ order.get_ThursdayB() }}</td>
+        <td>{{ order.get_ThursdayL() }}</td>
+        <td>{{ order.get_ThursdayD() }}</td>
+        <td>{{ order.get_FridayB() }}</td>
+        <td>{{ order.get_FridayL() }}</td>
+        <td>{{ order.get_FridayD() }}</td>
+        <td>{{ order.get_total_price() }}</td>
+
+        <td>
+          <form action="{{url_for('delete_order_all', id=order.get_order_id())}}" method="POST">
+<!--            <input type="submit" value="Delete" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete {#user.get_first_name()#} {#user.get_last_name()#}?');">-->
+
+            <!-- Button to Open the Modal -->
+    <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#myModal_{{order.get_order_id()}}">
+      Delete
+    </button>
+
+    <!-- The Modal -->
+    <div class="modal" id="myModal_{{order.get_order_id()}}">
+      <div class="modal-dialog">
+        <div class="modal-content">
+
+          <!-- Modal Header -->
+          <div class="modal-header">
+            <h4 class="modal-title">Delete Confirmation</h4>
+            <button type="button" class="close" data-dismiss="modal">&times;</button>
+          </div>
+
+          <!-- Modal body -->
+          <div class="modal-body">
+            Are you sure you want to delete {{order.get_order_id()}}?
+          </div>
+
+          <!-- Modal footer -->
+          <div class="modal-footer">
+            <input type="submit" value="Delete" class="btn btn-danger">
+           <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+          </div>
+
+
+        </div>
+      </div>
+    </div>
+
+          </form>
+        </td>
+      </tr>
+    {% endfor %}
+
+    </tbody>
+  </table>
+</div>
+{% endblock %}

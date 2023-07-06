@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Register a Face</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f2f2f2;
+      margin: 0;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      background-color: #fff;
+      padding: 20px;
+      border: 2px solid #ccc;
+    }
+
+    h3 {
+      text-align: center;
+      margin-top: 0;
+    }
+
+    .video-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-top: 20px;
+    }
+
+    .video-container video {
+      max-width: 100%;
+      height: auto;
+    }
+
+    .input-column {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-top: 20px;
+    }
+
+    .input-column label {
+      margin-bottom: 10px;
+      font-weight: bold;
+    }
+
+    .input-column input[type="text"] {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 15px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      box-sizing: border-box;
+    }
+
+    .input-column button[type="submit"] {
+      padding: 10px 20px;
+      background-color: #4caf50;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      border-radius: 4px;
+    }
+
+    .input-column button[type="submit"]:hover {
+      background-color: #45a049;
+    }
+
+    /* Styles for the alert */
+    .alert {
+      padding: 20px;
+      background-color: #f44336;
+      color: white;
+      margin-bottom: 15px;
+      text-align: center;
+    }
+
+    .alert-success {
+      background-color: #4CAF50;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <h3>Register a Face</h3>
+    <div class="alert" id="alert" style="display: none;"></div>
+    <div class="video-container">
+      <video id="video_feed" autoplay></video>
+    </div>
+    <div class="input-column">
+      <form method="POST" onsubmit="return handleFormSubmit(event)">
+        <label for="name">Name:</label>
+        <input type="text" id="name" name="name" required>
+        <button type="submit">Register</button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    // Get the video element
+    var video = document.getElementById("video_feed");
+
+    // Check if the browser supports accessing the webcam
+    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+      // Access the webcam stream
+      navigator.mediaDevices.getUserMedia({ video: true })
+        .then(function (stream) {
+          // Set the video source and play
+          video.srcObject = stream;
+          video.play();
+        })
+        .catch(function (error) {
+          console.error("Error accessing the webcam: ", error);
+        });
+    } else {
+      console.error("Webcam access is not supported in this browser.");
+    }
+
+    function handleFormSubmit(event) {
+      event.preventDefault(); // Prevent the form from submitting
+
+      // Get the input value
+      var name = document.getElementById("name").value;
+
+      // Capture the image from the video stream
+      var canvas = document.createElement("canvas");
+      var context = canvas.getContext("2d");
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      context.drawImage(video, 0, 0, canvas.width, canvas.height);
+      var imageDataURL = canvas.toDataURL("image/jpeg");
+
+      // Create a hidden input field and set the image data as its value
+      var hiddenInput = document.createElement("input");
+      hiddenInput.type = "hidden";
+      hiddenInput.name = "face_image";
+      hiddenInput.value = imageDataURL;
+
+      // Append the hidden input to the form
+      var form = event.target;
+      form.appendChild(hiddenInput);
+
+      // Submit the form
+      form.submit();
+
+      // Clear the input field
+      document.getElementById("name").value = "";
+
+      return false; // Prevent the form from refreshing the page
+    }
+  </script>
+</body>
+
+</html>

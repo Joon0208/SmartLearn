@@ -1,0 +1,271 @@
+{% extends "base.html" %}
+{% block title %}Yammy - Update Low Carb{% endblock %}
+
+{% block content %}
+{% from "includes/_formHelper.html" import render_field %}
+
+
+<div class="container-fluid">
+
+  <h1>Update Low Carb</h1>
+
+</div>
+
+<form method='POST' action="">
+
+
+<div class="container-fluid">
+
+  <div class="row">
+    <div class="col-sm-12">
+      <h3>Monday</h3>
+      <div class="row">
+        <div class="col-sm-3" >
+<!--             style="  border-radius: 25px;border: 2px solid #000000;padding: 20px;width: 100%;height: 100%;">-->
+<!--          <div class="food_item">-->
+          <h4>Breakfast</h4>
+
+            <div> <img src="/static/food/breakfast1.jpg" alt="" width="100%" class="image-round"></div>
+            <p>Food Name 1</p>
+            <p>Price:$5 </p>
+            <div class="form-group">
+              {{ render_field(form.MondayB, class="form-control") }}
+            </div>
+
+          </div>
+<!--        </div>-->
+
+
+
+        <div class="col-sm-3">
+          <h4>Lunch</h4>
+          <div> <img src="/static/food/lunch1.jpg" alt="" width="100%" class="image-round"></div>
+            <p>Food Name 1</p>
+            <p>Price:$5 </p>
+            <div class="form-group">
+              {{ render_field(form.MondayL, class="form-control") }}
+            </div>
+        </div>
+        <div class="col-sm-3">
+
+          <h4>Dinner</h4>
+            <div> <img src="/static/food/dinner1.jpg" alt="" width="100%" class="image-round"></div>
+            <p>Food Name 1</p>
+            <p>Price:$5 </p>
+            <div class="form-group">
+              {{ render_field(form.MondayD, class="form-control") }}
+            </div>
+
+        </div>
+
+        </div>
+      </div>
+    </div>
+</div>
+
+
+
+
+<div class="container-fluid">
+  <div class="row">
+        <div class="col-sm-12">
+      <h3>Tuesday</h3>
+      <div class="row">
+        <div class="col-sm-3">
+          <h4>Breakfast</h4>
+            <div> <img src="/static/food/breakfast2.jpg" alt="" width="100%" class="image-round"></div>
+            <p>Food Name 1</p>
+            <p>Price:$5 </p>
+            <div class="form-group">
+              {{ render_field(form.TuesdayB, class="form-control") }}
+            </div>
+        </div>
+        <div class="col-sm-3">
+          <h4>Lunch</h4>
+          <div> <img src="/static/food/lunch2.jpg" alt="" width="100%" class="image-round"></div>
+            <p>Food Name 1</p>
+            <p>Price:$5 </p>
+            <div class="form-group">
+              {{ render_field(form.TuesdayL, class="form-control") }}
+            </div>
+        </div>
+        <div class="col-sm-3">
+          <h4>Dinner</h4>
+          <div> <img src="/static/food/dinner2.jpg" alt="" width="100%" class="image-round"></div>
+            <p>Food Name 1</p>
+            <p>Price:$5 </p>
+            <div class="form-group">
+              {{ render_field(form.TuesdayD, class="form-control") }}
+            </div>
+        </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="container-fluid">
+  <div class="row">
+        <div class="col-sm-12">
+      <h3>Wednesday</h3>
+
+      <div class="row">
+        <div class="col-sm-3">
+          <h4>Breakfast</h4><div>
+          <img src="/static/food/breakfast3.jpg" alt="" width="100%" class="image-round"></div>
+            <p>Food Name 1</p>
+            <p>Price:$5 </p>
+            <div class="form-group">
+              {{ render_field(form.WednesdayB, class="form-control") }}
+            </div>
+        </div>
+        <div class="col-sm-3">
+          <h4>Lunch</h4>
+          <div> <img src="/static/food/lunch3.jpg" alt="" width="100%" class="image-round"></div>
+            <p>Food Name 1</p>
+            <p>Price:$5 </p>
+            <div class="form-group">
+              {{ render_field(form.WednesdayL, class="form-control") }}
+            </div>
+        </div>
+        <div class="col-sm-3">
+          <h4>Dinner</h4>
+          <div> <img src="/static/food/dinner3.jpg" alt="" width="100%" class="image-round"></div>
+            <p>Food Name 1</p>
+            <p>Price:$5 </p>
+            <div class="form-group">
+              {{ render_field(form.WednesdayD, class="form-control") }}
+            </div>
+        </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+    <div class="container-fluid">
+  <div class="row">
+        <div class="col-sm-12">
+      <h3>Thursday</h3>
+      <div class="row">
+        <div class="col-sm-3">
+          <h4>Breakfast</h4>
+          <div><img src="/static/food/breakfast1.jpg" alt="" width="100%" class="image-round"></div>
+            <p>Food Name 1</p>
+            <p>Price:$5 </p>
+            <div class="form-group">
+              {{ render_field(form.ThursdayB, class="form-control") }}
+            </div>
+        </div>
+        <div class="col-sm-3">
+          <h4>Lunch</h4>
+          <div><img src="/static/food/lunch1.jpg" alt="" width="100%" class="image-round"></div>
+            <p>Food Name 1</p>
+            <p>Price:$5 </p>
+            <div class="form-group">
+              {{ render_field(form.ThursdayL, class="form-control") }}
+            </div>
+        </div>
+        <div class="col-sm-3">
+          <h4>Dinner</h4>
+          <div> <img src="/static/food/dinner1.jpg" alt="" width="100%" class="image-round"></div>
+            <p>Food Name 1</p>
+            <p>Price:$5 </p>
+            <div class="form-group">
+              {{ render_field(form.ThursdayD, class="form-control") }}
+            </div>
+        </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+      <div class="container-fluid">
+  <div class="row">
+        <div class="col-sm-12">
+      <h3>Friday</h3>
+      <div class="row">
+        <div class="col-sm-3">
+          <h4>Breakfast</h4>
+          <div> <img src="/static/food/breakfast2.jpg" alt="" width="100%" class="image-round"></div>
+            <p>Food Name 1</p>
+            <p>Price:$5 </p>
+            <div class="form-group">
+              {{ render_field(form.FridayB, class="form-control") }}
+            </div>
+        </div>
+        <div class="col-sm-3">
+          <h4>Lunch</h4>
+          <div> <img src="/static/food/lunch2.jpg" alt="" width="100%" class="image-round"></div>
+            <p>Food Name 1</p>
+            <p>Price:$5 </p>
+            <div class="form-group">
+              {{ render_field(form.FridayL, class="form-control") }}
+            </div>
+        </div>
+        <div class="col-sm-3">
+          <h4>Dinner</h4>
+          <div> <img src="/static/food/dinner2.jpg" alt="" width="100%" class="image-round"></div>
+            <p>Food Name 1</p>
+            <p>Price:$5 </p>
+            <div class="form-group">
+              {{ render_field(form.FridayD, class="form-control") }}
+            </div>
+        </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+  <div class = 'container-fluid'>
+  <div class="button-container">
+    <div class="center">
+    <input type="Submit" value="Update Cart" class="btn btn-primary">
+    </div>
+  </div>
+  </div>
+
+</form>
+
+<style>
+  .col-sm-3{
+    border-radius: 25px;
+  border: 2px solid #000000;
+  padding: 20px;
+  width: 100%;
+  height: 100%;
+  margin : 40px;
+  }
+
+  img {
+  border-radius: 50%;
+}
+
+.button-container {
+  height: 150px;
+  position: relative;
+}
+
+.center {
+  margin: 0;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  -ms-transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%);
+}
+
+h1{
+text-align : center;
+}
+
+p{
+text-align : center;
+}
+
+</style>
+
+{% endblock %}
+
+

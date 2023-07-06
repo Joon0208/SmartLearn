@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Camera Stream with Face Detection</title>
+    <style>
+        #video {
+            width: 100%;
+            height: auto;
+            max-width: 640px; /* Adjust the max-width as needed */
+        }
+        #canvas {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <h1>Camera Stream with Face Detection</h1>
+    <div>
+        <video id="video" autoplay></video>
+        <canvas id="canvas"></canvas>
+    </div>
+
+    <script>
+        // Access the webcam video stream
+        navigator.mediaDevices.getUserMedia({ video: true })
+            .then(function(stream) {
+                var videoElement = document.getElementById('video');
+                videoElement.srcObject = stream;
+
+                // Create a canvas for face detection
+                var canvasElement = document.getElementById('canvas');
+                var context = canvasElement.getContext('2d');
+
+                // Detect faces in each video frame
+                var detectFaces = function() {
+                    context.drawImage(videoElement, 0, 0, canvasElement.width, canvasElement.height);
+
+                    // Convert the canvas image to a data URL
+                    var imageDataURL = canvasElement.toDataURL('image/jpeg');
+
+                    // Send the image data to the server for face detection
+                    fetch('/detect_faces', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ image_data: imageDataURL }),
+                    })
+                    .then(function(response) {
+                        return response.json();
+                    })
+                    .then(function(data) {
+                        // Process the detected faces data returned by the server
+                        // You can perform any required actions here, such as drawing rectangles around the faces
+
+                        // Clear the canvas
+                        context.clearRect(0, 0, canvasElement.width, canvasElement.height);
+                    })
+                    .catch(function(error) {
+                        console.error('Error:', error);
+                    });
+                };
+
+                // Call the detectFaces function in each video frame
+                videoElement.addEventListener('play', function() {
+                    setInterval(detectFaces, 1000 / 30); // Adjust the interval as needed
+                });
+            })
+            .catch(function(error) {
+                console.error('Error accessing webcam:', error);
+            });
+    </script>
+</body>
+</html>

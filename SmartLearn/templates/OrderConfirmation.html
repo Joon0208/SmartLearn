@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}Yammy - Order Confirmation{% endblock %}
+
+{% block content %}
+<h1 class="display-4">Order Confirmation</h1>
+
+<h1>Your Order has been placed successfully</h1>
+<div class="container-fluid">
+    <div class="button-container">
+    <div class="center">
+    <a href="/retrieveOrders" class="btn btn-warning">View Your Past Orders</a>
+</div>
+    </div>
+</div>
+
+<style>
+  .col-sm-3{
+    border-radius: 25px;
+  border: 2px solid #000000;
+  padding: 20px;
+  width: 100%;
+  height: 100%;
+  margin : 40px;
+  }
+
+  img {
+  border-radius: 50%;
+}
+
+.button-container {
+  height: 150px;
+  position: relative;
+}
+
+.center {
+  margin: 0;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  -ms-transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%);
+}
+
+h1{
+text-align : center;
+}
+
+p{
+text-align : center;
+}
+
+</style>
+
+{% endblock %}
