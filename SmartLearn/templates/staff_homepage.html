@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}Yammy - Staff Homepage {% endblock %}
+
+{% block content %}
+{% if 'staff' in session %}
+<div class="alert alert-success alert-dismissible">
+  <button type="button" class="close" data-dismiss="alert">&times;</button>
+  Welcome back, Admin.
+</div>
+{% endif %}
+<div class="bg-light">
+  <div class="container py-5">
+    <div class="row h-100 align-items-center py-5">
+      <div class="col-lg-6">
+        <h1 class="display-4">Welcome back Staff</h1>
+        <h4 class="display-6">Transforming Education with Video Analytics</h4>
+        <p class="lead text-muted mb-0">SmartLearn revolutionizes education by leveraging video analytics to enhance students' lives in school. Our system tracks student emotions, monitors eye movements during exams, and performs object tracking. With real-time insights, educators can tailor their teaching methods, identify areas for support, and create personalized learning experiences. Join us in the journey to transform education with SmartLearn, where technology meets pedagogy for an enriching and empowering educational experience. </p>
+
+        </p>
+      </div>
+      <div class="col-lg-6 d-none d-lg-block"><img src="/static/img/smartclass1.jpg" alt="" class="img-fluid"></div>
+    </div>
+  </div>
+</div>
+
+
+{% endblock %}

@@ -9,6 +9,8 @@ import shelve, User, numpy as np, math, cv2, base64, os, face_recognition
 #password2 54321
 
 app = Flask(__name__)
+app.secret_key = 'hi'
+
 
 camera = cv2.VideoCapture(0)
 fr = None  # FaceRecognition instance
@@ -44,7 +46,7 @@ def stafflogin():
         if form.email.data == "staff@account" and form.password.data == 'staffpass':
             flash('Log in successfully!', 'success')
             session['staff'] = 'staff'
-            return redirect(url_for("home"))
+            return redirect(url_for("staff_homepage"))
         else:
             flash('Log in unsuccessful, please try again!','danger')
     return render_template('stafflogin.html', title='Login', form=form)
@@ -81,7 +83,7 @@ def signup():
         db['Users'] = accounts_dict
         db.close()
         # flash(f'Account Created Successfully for {create_user_form.first_name.data}', category='success')
-        return redirect(url_for('login'))
+        return redirect(url_for('face_registration'))
     return render_template('signup.html', form=create_user_form)
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -118,7 +120,7 @@ def login():
                         user_details = [id, first_name,last_name,birthday,gender,email,phone_number,password]
                         session['user'] = user_details
 
-                        return redirect(url_for("home"))
+                        return redirect(url_for("student_homepage"))
                     else:
                         if "user" in session:
                             return render_template('login.html')
@@ -279,7 +281,7 @@ def face_registration():
         return render_template('face_registration.html', detection_status=True, face_image=image_path,
                                success_message='Image saved successfully.')
 
-    return render_template('face_registration.html', detection_status=False)
+    return render_template('login.html', detection_status=False)
 
 def gen_frames():
     global fr
@@ -379,6 +381,22 @@ class FaceRecognition:
 @app.route('/exam_monitoring')
 def exam_monitoring():
     return render_template('exam_monitoring.html')
+
+@app.route('/student_homepage')
+def student_homepage():
+    return render_template('student_homepage.html')
+
+@app.route('/staff_homepage')
+def staff_homepage():
+    return render_template('staff_homepage.html')
+
+@app.route('/exam')
+def exam():
+    return render_template('exam.html')
+
+@app.route('/exam1')
+def exam1():
+    return render_template('exam1.html')
 
 if __name__ == '__main__':
     app.run()
