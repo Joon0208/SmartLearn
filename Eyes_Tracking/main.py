@@ -27,7 +27,11 @@ def eyesExtractor(img, eye_coords):
     eyes[mask == 0] = 155
     return eyes
 
+# Initialize the non-center eye count
+non_center_eye_count = 0
+
 def positionEstimator(cropped_eye):
+    global non_center_eye_count  # Declare global variable to modify the count inside the function
     h, w = cropped_eye.shape
     gaussian_blur = cv.GaussianBlur(cropped_eye, (9, 9), 0)
     median_blur = cv.medianBlur(gaussian_blur, 3)
@@ -41,17 +45,10 @@ def positionEstimator(cropped_eye):
     eye_parts = [np.sum(right_piece == 0), np.sum(center_piece == 0), np.sum(left_piece == 0)]
     max_index = np.argmax(eye_parts)
 
-    if max_index == 0:
-        eye_position = "RIGHT"
-        color = [(0, 0, 0), (0, 255, 0)]
-    elif max_index == 1:
-        eye_position = 'CENTER'
-        color = [(0, 255, 255), (255, 192, 203)]
-    else:
-        eye_position = 'LEFT'
-        color = [(128, 128, 128), (0, 255, 255)]
+    if max_index != 1:  # If eye is not in the center position
+        non_center_eye_count += 1  # Increment the non-center eye count
 
-    return eye_position, color
+    return eye_parts, max_index
 
 with map_face_mesh.FaceMesh(min_detection_confidence=0.5, min_tracking_confidence=0.5) as face_mesh:
     start_time = time.time()
@@ -76,11 +73,12 @@ with map_face_mesh.FaceMesh(min_detection_confidence=0.5, min_tracking_confidenc
             crop_right = eyesExtractor(frame, right_coords)
             crop_left = eyesExtractor(frame, left_coords)
 
-            eye_position_right, color_right = positionEstimator(crop_right)
-            eye_position_left, color_left = positionEstimator(crop_left)
+            eye_parts_right, max_index_right = positionEstimator(crop_right)
+            eye_parts_left, max_index_left = positionEstimator(crop_left)
 
-            cv.putText(frame, f'R: {eye_position_right}', (40, 220), FONTS, 1.0, color_right[1], 2, cv.LINE_AA)
-            cv.putText(frame, f'L: {eye_position_left}', (40, 320), FONTS, 1.0, color_left[1], 2, cv.LINE_AA)
+            cv.putText(frame, f'R: {max_index_right}', (40, 220), FONTS, 1.0, (0, 0, 255), 2, cv.LINE_AA)
+            cv.putText(frame, f'L: {max_index_left}', (40, 320), FONTS, 1.0, (0, 0, 255), 2, cv.LINE_AA)
+            cv.putText(frame, f'Non-Center Eye Count: {non_center_eye_count}', (40, 420), FONTS, 1.0, (255, 255, 255), 2, cv.LINE_AA)
 
         end_time = time.time() - start_time
         cv.imshow('frame', frame)

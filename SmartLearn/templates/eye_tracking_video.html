@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Eye Tracking Video</title>
+</head>
+<body>
+    <h1>Eye Tracking Video Stream</h1>
+    <img id="video_stream" src="{{ url_for('eye_tracking_video') }}" alt="Video Stream">
+</body>
+</html>
+
+<script>
+    function updateVideoStream() {
+        var imgElement = document.getElementById('video-stream');
+        imgElement.src = "{{ url_for('eye_tracking_video') }}?" + new Date().getTime();
+    }
+
+    // Update the video stream every 100ms (adjust the interval as needed)
+    setInterval(updateVideoStream, 100);
+</script>
+
