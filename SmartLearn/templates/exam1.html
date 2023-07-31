@@ -1,10 +1,180 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends "base.html" %}
+{% block title %}Yammy - Student Exam {% endblock %}
 
-</body>
-</html>
+{% block content %}
+  <h1>Python Exam Simulator</h1>
+
+  <form id="exam-form" onsubmit="return handleFormSubmission()">
+    <!-- Question 1 -->
+    <h3>Question 1: What is the output of the following code?</h3>
+    <pre><code>
+      x = 5
+      y = 2
+      print(x + y)
+    </code></pre>
+    <input type="radio" name="q1" value="a"> 3<br>
+    <input type="radio" name="q1" value="b"> 5<br>
+    <input type="radio" name="q1" value="c"> 7<br>
+    <input type="radio" name="q1" value="d"> 9<br>
+
+    <!-- Question 2 -->
+    <h3>Question 2: Which of the following is NOT a Python data type?</h3>
+    <input type="radio" name="q2" value="a"> Integer<br>
+    <input type="radio" name="q2" value="b"> Float<br>
+    <input type="radio" name="q2" value="c"> String<br>
+    <input type="radio" name="q2" value="d"> Loop<br>
+
+        <!-- Question 3 -->
+    <h3>Question 3: What is the correct way to declare a variable in Python?</h3>
+    <input type="radio" name="q4" value="a"> var x = 5<br>
+    <input type="radio" name="q4" value="b"> x = 5<br>
+    <input type="radio" name="q4" value="c"> x := 5<br>
+    <input type="radio" name="q4" value="d"> declare x = 5<br>
+
+    <!-- Question 4 -->
+    <h3>Question 11: What does the following code do?</h3>
+    <pre><code>
+    def factorial(n):
+        if n == 0 or n == 1:
+            return 1
+        else:
+            return n * factorial(n - 1)
+
+    result = factorial(5)
+    print(result)
+    </code></pre>
+    <input type="radio" name="q11" value="a"> Returns the square root of the input number.<br>
+    <input type="radio" name="q11" value="b"> Returns the factorial of the input number.<br>
+    <input type="radio" name="q11" value="c"> Returns the input number to the power of 5.<br>
+    <input type="radio" name="q11" value="d"> Returns the sum of all numbers from 1 to the input number.<br>
+
+
+          <!-- Question 5 -->
+    <h3>Question 5: What will be the output of the following code?</h3>
+    <pre><code>
+      word = "Python"
+      print(word[1:4])
+    </code></pre>
+    <input type="radio" name="q5" value="a"> Pyt<br>
+    <input type="radio" name="q5" value="b"> ytho<br>
+    <input type="radio" name="q5" value="c"> yth<br>
+    <input type="radio" name="q5" value="d"> thon<br>
+
+    <!-- Question 6 -->
+    <h3>Question 6: Which loop is used to iterate over a sequence in Python?</h3>
+    <input type="radio" name="q6" value="a"> while loop<br>
+    <input type="radio" name="q6" value="b"> do-while loop<br>
+    <input type="radio" name="q6" value="c"> for loop<br>
+    <input type="radio" name="q6" value="d"> repeat-until loop<br>
+
+    <!-- Question 7 -->
+    <h3>Question 7: What is the result of the following code?</h3>
+    <pre><code>
+      num_list = [1, 2, 3, 4, 5]
+      squared_list = [x**2 for x in num_list]
+      print(squared_list)
+    </code></pre>
+    <input type="radio" name="q7" value="a"> [1, 4, 9, 16, 25]<br>
+    <input type="radio" name="q7" value="b"> [2, 4, 6, 8, 10]<br>
+    <input type="radio" name="q7" value="c"> [1, 2, 3, 4, 5]<br>
+    <input type="radio" name="q7" value="d"> [1, 3, 5, 7, 9]<br>
+
+    <!-- Question 8 -->
+    <h3>Question 8: How do you check the length of a list or a string in Python?</h3>
+    <input type="radio" name="q8" value="a"> len(x)<br>
+    <input type="radio" name="q8" value="b"> x.length()<br>
+    <input type="radio" name="q8" value="c"> length(x)<br>
+    <input type="radio" name="q8" value="d"> x.size()<br>
+
+    <!-- Question 9 -->
+    <h3>Question 9: What is the correct way to create a function in Python?</h3>
+    <input type="radio" name="q9" value="a"> def myFunction():<br>
+    <input type="radio" name="q9" value="b"> function myFunction():<br>
+    <input type="radio" name="q9" value="c"> create myFunction():<br>
+    <input type="radio" name="q9" value="d"> func myFunction():<br>
+
+    <!-- Question 10 -->
+    <h3>Question 10: What does the following code do?</h3>
+    <pre><code>
+      def my_function(*args):
+          return sum(args)
+
+      result = my_function(1, 2, 3, 4)
+      print(result)
+    </code></pre>
+    <input type="radio" name="q10" value="a"> Multiplies all the arguments together.<br>
+    <input type="radio" name="q10" value="b"> Sums all the arguments.<br>
+    <input type="radio" name="q10" value="c"> Finds the maximum value among the arguments.<br>
+    <input type="radio" name="q10" value="d"> Finds the minimum value among the arguments.<br>
+
+    <!-- Submit Button -->
+    <br>
+    <input type="submit" value="Submit">
+  </form>
+
+  <div id="result" style="display: none;">
+    <h2>Exam Result</h2>
+    <div id="score"></div>
+    <div id="answers"></div>
+  </div>
+
+  <script>
+    function handleFormSubmission() {
+      // Collect user answers
+      var userAnswers = {};
+      var form = document.getElementById('exam-form');
+      var elements = form.elements;
+
+      for (var i = 0; i < elements.length; i++) {
+        var element = elements[i];
+        if (element.type === 'radio' && element.checked) {
+          userAnswers[element.name] = element.value;
+        }
+      }
+
+      // Replace these correct answers with the actual correct answers for each question
+      var correctAnswers = {
+        'q1': 'c',
+        'q2': 'd',
+        'q3': 'b',
+        'q4': 'b',
+        'q5': 'b',
+        'q6': 'c',
+        'q7': 'a',
+        'q8': 'a',
+        'q9': 'a',
+        'q10': 'b',
+        // Add correct answers for all questions
+      };
+
+      // Calculate the score
+      var score = 0;
+      for (var question in userAnswers) {
+        if (userAnswers[question] === correctAnswers[question]) {
+          score++;
+        }
+      }
+
+      // Display the result
+      var resultDiv = document.getElementById('result');
+      var scoreDiv = document.getElementById('score');
+      var answersDiv = document.getElementById('answers');
+
+      scoreDiv.innerText = 'You answered ' + score + ' out of ' + Object.keys(correctAnswers).length + ' questions correctly.';
+
+      var answerList = '';
+      for (var question in userAnswers) {
+        var answerStatus = userAnswers[question] === correctAnswers[question] ? 'Correct' : 'Wrong';
+        answerList += '<li>Question ' + question.slice(1) + ': ' + answerStatus + '</li>';
+      }
+      answersDiv.innerHTML = '<ul>' + answerList + '</ul>';
+
+      // Hide the form and show the result
+      form.style.display = 'none';
+      resultDiv.style.display = 'block';
+
+      // Prevent default form submission
+      return false;
+    }
+  </script>
+{% endblock %}

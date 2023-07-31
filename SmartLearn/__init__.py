@@ -55,7 +55,6 @@ def accounts():
     db = shelve.open('storage.db', 'r')
     accounts_dict = db['Users']
     db.close()
-
     accounts_list = []
     for key in accounts_dict:
         user = accounts_dict.get(key)
