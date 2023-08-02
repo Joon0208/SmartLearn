@@ -2,8 +2,6 @@ import cv2 as cv
 import mediapipe as mp
 import time
 import numpy as np
-from flask import Response
-from flask import Flask, render_template, request, redirect, url_for, flash, session, Response
 
 frame_counter = 0
 FONTS = cv.FONT_HERSHEY_COMPLEX
@@ -32,6 +30,9 @@ def eyesExtractor(img, eye_coords):
 # Initialize the non-center eye count
 non_center_eye_count = 0
 
+# Variable to store the time when the camera starts
+start_time = 0
+
 def positionEstimator(cropped_eye):
     global non_center_eye_count  # Declare global variable to modify the count inside the function
     h, w = cropped_eye.shape
@@ -52,13 +53,27 @@ def positionEstimator(cropped_eye):
 
     return eye_parts, max_index
 
+# Initialize a flag to signal when to stop the frame generation
+stop_frame_generation = False
+
+# Function to generate frames
 def generate_frames():
+    global stop_frame_generation
     global frame_counter
+    global non_center_eye_count
+    global start_time
+
+    # Get the current time to start counting
+    start_time = time.time()
+
     with map_face_mesh.FaceMesh(min_detection_confidence=0.5, min_tracking_confidence=0.5) as face_mesh:
-        while True:
+        while not stop_frame_generation:
             frame_counter += 1
+
+            # Check if the camera is off
             ret, frame = camera.read()
             if not ret:
+                stop_frame_generation = True
                 break
 
             frame = cv.resize(frame, None, fx=1.5, fy=1.5, interpolation=cv.INTER_CUBIC)
@@ -79,14 +94,28 @@ def generate_frames():
                 eye_parts_right, max_index_right = positionEstimator(crop_right)
                 eye_parts_left, max_index_left = positionEstimator(crop_left)
 
-                cv.putText(frame, f'R: {max_index_right}', (40, 220), FONTS, 1.0, (0, 0, 255), 2, cv.LINE_AA)
-                cv.putText(frame, f'L: {max_index_left}', (40, 320), FONTS, 1.0, (0, 0, 255), 2, cv.LINE_AA)
+                # cv.putText(frame, f'R: {max_index_right}', (40, 220), FONTS, 1.0, (0, 0, 255), 2, cv.LINE_AA)
+                # cv.putText(frame, f'L: {max_index_left}', (40, 320), FONTS, 1.0, (0, 0, 255), 2, cv.LINE_AA)
                 cv.putText(frame, f'Non-Center Eye Count: {non_center_eye_count}', (40, 420), FONTS, 1.0, (255, 255, 255), 2, cv.LINE_AA)
+
+                # Calculate the elapsed time and display it on the frame
+                elapsed_time_seconds = time.time() - start_time
+                elapsed_time_str = f'Time: {int(elapsed_time_seconds)}s'
+                cv.putText(frame, elapsed_time_str, (40, 520), FONTS, 1.0, (255, 255, 255), 2, cv.LINE_AA)
 
             ret, buffer = cv.imencode('.jpg', frame)
             if not ret:
                 continue
 
+            # Emit the data through Flask-SocketIO
+            socketio.emit('frame_data', {'elapsed_time': elapsed_time_seconds, 'non_center_eye_count': non_center_eye_count})
+
             frame_bytes = buffer.tobytes()
             yield (b'--frame\r\n'
                    b'Content-Type: image/jpeg\r\n\r\n' + frame_bytes + b'\r\n')
+
+    # Release the camera when loop ends
+    camera.release()
+
+# Now, when the camera starts (before calling generate_frames()), make sure to reset the flag
+stop_frame_generation = False

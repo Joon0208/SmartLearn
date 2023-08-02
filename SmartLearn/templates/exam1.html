@@ -4,6 +4,17 @@
 {% block content %}
   <h1>Python Exam Simulator</h1>
 
+  <div class="bg-white py-5">
+    <div class="container py-5">
+      <div class="row align-items-center mb-5">
+        <div class="col-lg-6 order-2 order-lg-1"><i class="fa fa-bar-chart fa-2x mb-3 text-primary"></i>
+          <h2 class="font-weight-light">Exam Monitoring </h2>
+          <div><img src="{{ url_for('eye_tracking_video') }}" alt="Live Stream" id="eye_tracking_video"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <form id="exam-form" onsubmit="return handleFormSubmission()">
     <!-- Question 1 -->
     <h3>Question 1: What is the output of the following code?</h3>
@@ -155,6 +166,18 @@
         }
       }
 
+      // Create a data object to send to the server
+      var data = {
+        'score': score
+      };
+
+      // Make a POST request to the Flask route to pass the score to Python
+      var xhr = new XMLHttpRequest();
+      xhr.open("POST", "/submit_score", true);
+      xhr.setRequestHeader('Content-Type', 'application/json');
+      xhr.send(JSON.stringify(data));
+
+
       // Display the result
       var resultDiv = document.getElementById('result');
       var scoreDiv = document.getElementById('score');
@@ -173,8 +196,18 @@
       form.style.display = 'none';
       resultDiv.style.display = 'block';
 
+
+      // Set stop_frame_generation to false to stop the camera
+      stop_frame_generation = false;
+
+      // Stop the camera by making an AJAX request to the Flask route
+      var xhr = new XMLHttpRequest();
+      xhr.open("GET", "/stop_camera");
+      xhr.send();
+
       // Prevent default form submission
       return false;
+
     }
   </script>
 {% endblock %}
