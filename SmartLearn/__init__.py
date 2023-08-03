@@ -10,6 +10,11 @@ import numpy as np
 from flask_socketio import SocketIO
 from flask_sqlalchemy import SQLAlchemy
 
+from models import db
+from flask_login import LoginManager
+from flask_sqlalchemy import SQLAlchemy 
+
+from os import path
 
 #Login mail@mail.com
 #password 12345
@@ -26,21 +31,70 @@ DB_NAME = "database.db"
 app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{DB_NAME}'
 db = SQLAlchemy(app)
 
-# Define the Users model
-class User(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100), nullable=False)
-    non_center_eye_count = db.Column(db.Integer, nullable=False)
-    elapsed_time_seconds = db.Column(db.Float, nullable=False)
 
-    def __init__(self, name, non_center_eye_count, elapsed_time_seconds):
-        self.name = name
-        self.non_center_eye_count = non_center_eye_count
-        self.elapsed_time_seconds = elapsed_time_seconds
+def create_app():
+    app = Flask(__name__)
+
+    app.config['SECRET_KEY'] = 'this is a secret key'
+    app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{DB_NAME}'
+    app.config['UPLOAD_FOLDER'] = 'uploads/'
+    app.config['ALLOWED_EXTENSIONS'] = {'mp4', 'avi', 'mov'}
+    app.config['MODELS_FOLDER'] = 'FYP/models'
+    app.secret_key = 'this is a secret key'
+
+    db.init_app(app)
+
+    from models import User
+
+    create_database(app)
+
+    login_manager = LoginManager()
+    login_manager.login_view = 'auth.login'
+    login_manager.init_app(app)
+
+    @login_manager.user_loader
+    def load_user(id):
+        return User.query.get(int(id))
+
+    return app
+
+
+def create_database(app):
+    if not path.exists('website/' + DB_NAME):
+        with app.app_context():
+            db.create_all()
+            print('Database created')
+
+
+
+
+
+# Define the Users model
+# class User(db.Model):
+#     id = db.Column(db.Integer, primary_key=True)
+#     name = db.Column(db.String(100), nullable=False)
+#     non_center_eye_count = db.Column(db.Integer, nullable=False)
+#     elapsed_time_seconds = db.Column(db.Float, nullable=False)
+
+#     def __init__(self, name, non_center_eye_count, elapsed_time_seconds):
+#         self.name = name
+#         self.non_center_eye_count = non_center_eye_count
+#         self.elapsed_time_seconds = elapsed_time_seconds
 
 # @app.route('/')
 # def home():
 #     return render_template('home.html')
+
+
+
+
+if __name__ == '__main__':
+    with app.app_context():
+        db.create_all()  # Create the "users" table in the database
+    app.run(debug=True)
+
+
+
 
 @app.route('/')
 def home():
@@ -488,9 +542,4 @@ def generate_frames():
     # Release the camera when loop ends
     camera.release()
 
-
-if __name__ == '__main__':
-    with app.app_context():
-        db.create_all()  # Create the "users" table in the database
-    app.run(debug=True)
 
