@@ -1,20 +1,12 @@
 from flask import Blueprint, render_template, request, flash, redirect, url_for, session
-from website.models import User
+from models import User
 from werkzeug.security import generate_password_hash, check_password_hash
-from website import db
+from __init__ import db
 from flask_login import login_user, login_required, logout_user, current_user
-from requests_oauthlib import OAuth2Session
-from authlib.integrations.flask_client import OAuth
-# from website.__init__ import create_app, oauth
-
-# app = create_app()
-
 import os 
 
-
-
 # blueprint for flask application
-auth = Blueprint('auth', __name__, static_folder='', template_folder='templates/auth_templates' )
+auth = Blueprint('auth', __name__, static_folder='', template_folder='templates/auth_templates')
 
 
 @auth.route('/login', methods=['GET', 'POST'])

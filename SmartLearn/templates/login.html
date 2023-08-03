@@ -1,4 +1,4 @@
-<!-- {% extends "base.html" %}
+{% extends "base.html" %}
 {% block title %}Yammy - Log in{% endblock %}
 
 {% block content %}
@@ -18,50 +18,6 @@
 </div>
 
 
-<form action="" method="POST">
-
-<section class="vh-100 gradient-custom">
-  <div class="container py-5 h-100">
-    <div class="row d-flex justify-content-center align-items-center h-100">
-      <div class="col-12 col-md-8 col-lg-6 col-xl-5">
-        <div class="card bg-secondary text-white" style="border-radius: 1rem;">
-          <div class="card-body p-5 text-center">
-            <div class="mt-md-4 pb-5">
-              <h2 class="fw-bold mb-2 text-uppercase">Student Login</h2>
-              <p class="text-white-50 mb-5">Please enter your login and password!</p>
-              <form>
-                <div class="form-outline form-white mb-4">
-                  {{ render_field(form.email, class="form-control") }}
-
-                </div>
-                <div class="form-outline form-white mb-4">
-                  {{ render_field(form.password, class="form-control") }}
-
-                </div>
-                <button class="btn btn-outline-light btn-lg px-5" type="submit">Login</button>
-              </form>
-
-            </div>
-
-            <div>
-              <p class="mb-0">Don't have an account? <a href="/signup" class="text-white-50 fw-bold">Sign Up</a>
-              </p>
-              <p class="mb-0">Are you a staff? <a href="/stafflogin" class="text-white-50 fw-bold">Log in as staff</a>
-              </p>
-            </div>
-
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-{% endblock %} -->
-
-{% extends "base.html" %} {% block title %} Login {% endblock %} {% block
-content %}
-<style></style>
 <form method="POST">
   <h3 align="center">Login</h3>
   <div class="form-group">
@@ -90,4 +46,21 @@ content %}
   <br />
   <button type="submit" class="btn btn-primary">Log in</button>
 </form>
-{% endblock %}
+
+            </div>
+
+            <div>
+              <p class="mb-0">Don't have an account? <a href="/signup" class="text-white-50 fw-bold">Sign Up</a>
+              </p>
+              <p class="mb-0">Are you a staff? <a href="/stafflogin" class="text-white-50 fw-bold">Log in as staff</a>
+              </p>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+{% endblock %} -->

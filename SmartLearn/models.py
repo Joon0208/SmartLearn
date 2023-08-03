@@ -5,11 +5,6 @@ from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 
 
-db = SQLAlchemy()
-
-
-
-
 # class Videos(db.Model):
 #     id = db.Column(db.Integer, primary_key = True)
 #     video = db.Column(db.String(500))
@@ -58,4 +53,4 @@ class User(db.Model, UserMixin):
     # Everytime we create a video, add into the users videos relationship the video id 
     # videos = db.relationship('Videos') 
     # questions = db.relationship('Question', backref='user', lazy=True)
-    reports = db.relationship('Report', backref='user', lazy=True)
+    # reports = db.relationship('Report', backref='user', lazy=True)

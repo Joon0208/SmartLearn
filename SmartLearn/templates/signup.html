@@ -1,108 +1,8 @@
-<!-- {% extends "base.html" %}
+{% extends "base.html" %}
 {% block title %}Yammy - Sign up{% endblock %}
 
 {% block content %}
 {% from "includes/_formHelper.html" import render_field %}
-<form method="POST" action="">
-
-<section class="vh-100 gradient-custom">
-  <div class="container py-5 h-100">
-    <div class="row justify-content-center align-items-center h-100">
-      <div class="col-12 col-lg-9 col-xl-7">
-        <div class="card shadow-2-strong card-registration" style="border-radius: 15px; background-color: #343a40!important; color: white;">
-          <div class="card-body p-4 p-md-5 bg-secondary">
-
-            <h3 class="mb-4 pb-2 pb-md-0 ">Sign Up An Account!</h3>
-              {% if error %}
-                    <h5 style="color:red;"><strong>{{ error }}</strong></h5>
-                    {% endif %}
-            <form>
-
-              <div class="row">
-
-                <div class="col-md-6 mb-4">
-
-                  <div class="form-outline">
-                    {{ render_field(form.first_name, class="form-control") }}
-
-
-                  </div>
-
-                </div>
-                <div class="col-md-6 mb-4">
-
-                  <div class="form-outline">
-                    {{ render_field(form.last_name, class="form-control") }}
-
-                  </div>
-
-                </div>
-              </div>
-
-              <div class="row">
-                <div class="col-md-6 mb-4 d-flex align-items-center">
-
-                  <div class="form-outline datepicker w-100">
-                    {{ render_field(form.birthday, class="form-control") }}
-                  </div>
-
-                </div>
-                <div class="col-md-6 mb-4">
-
-                  <div class="position-relative align-items-center pd-0">
-                    {{ render_field(form.gender, class="form-control display-flex", display="flex") }}
-
-                  </div>
-              </div>
-              </div>
-
-              <div class="row">
-                <div class="col-md-6 mb-4 pb-2">
-
-                  <div class="form-outline">
-                    {{ render_field(form.email, class="form-control") }}
-
-                  </div>
-
-                </div>
-                <div class="col-md-6 mb-4 pb-2">
-
-                  <div class="form-outline">
-                    {{ render_field(form.phone_number, class="form-control") }}
-                  </div>
-
-                </div>
-              </div>
-
-                  <div class="row">
-                <div class="col-md-6 mb-4 pb-2">
-
-                  <div class="form-outline">
-                    {{ render_field(form.password, class="form-control") }}
-
-                  </div>
-
-              <div class="mt-4 pt-2">
-                <input class="btn btn-primary btn-lg" type="submit" value="Submit" />
-              </div>
-
-            </form>
-          </div>
-        </div>
-
-          <div>
-              <p class="mb-0">Are you a staff? <a href="/stafflogin" class="text-white-50 fw-bold">Log in as staff</a>
-              </p>
-            </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-{% endblock %} -->
-
-{% extends "base.html" %} {% block title %} Sign Up {% endblock %} {% block
-content %}
 <form method="POST">
   <h3 align="center">Sign Up</h3>
   <div class="form-group">
@@ -153,42 +53,16 @@ content %}
   <br />
   <button type="submit" class="btn btn-primary">Submit</button>
 </form>
+          </div>
+        </div>
 
-<script type="text/javascript">
-  document.getElementById("tb_password").onkeyup = function () {
-    validate();
-  };
-  function validate() {
-    var str = document.getElementById("tb_password").value;
-    if (str.length <= 12) {
-      document.getElementById("password1").innerHTML =
-        "Password must be at least 12 characters";
-      document.getElementById("lbl_pwdchecker").style.color = "Red";
-      return "too_short";
-    } else if (str.search(/[0-9]/) == -1) {
-      document.getElementById("password1").innerHTML =
-        "Password require at least 1 number";
-      document.getElementById("password1").style.color = "Red";
-      return "no_number";
-    } else if (str.search(/[a-z]/) == -1) {
-      document.getElementById("password1").innerHTML =
-        "Password require at least 1 lowercase letter";
-      document.getElementById("password1").style.color = "Red";
-      return "no_lower";
-    } else if (str.search(/[A-Z]/) == -1) {
-      document.getElementById("password1").innerHTML =
-        "Password require at least 1 uppercase character";
-      document.getElementById("password1").style.color = "Red";
-      return "no_lower";
-    } else if (str.search(/[^0-9a-zA-Z]/) == -1) {
-      document.getElementById("password1").innerHTML =
-        "Password require at least 1 special letter";
-      document.getElementById("password1").style.color = "Red";
-      return "no_special";
-    }
+          <div>
+              <p class="mb-0">Are you a staff? <a href="/stafflogin" class="text-white-50 fw-bold">Log in as staff</a>
+              </p>
+            </div>
+      </div>
+    </div>
+  </div>
+</section>
 
-    document.getElementById("password1").innerHTML = "Excellent";
-    document.getElementById("password1").style.color = "Blue";
-  }
-</script>
-{% endblock %}
+{% endblock %} -->

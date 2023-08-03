@@ -9,12 +9,9 @@ import time
 import numpy as np
 from flask_socketio import SocketIO
 from flask_sqlalchemy import SQLAlchemy
+from flask_login import LoginManager, login_user, UserMixin, current_user
+from datetime import datetime
 
-from models import db
-from flask_login import LoginManager
-from flask_sqlalchemy import SQLAlchemy 
-
-from os import path
 
 #Login mail@mail.com
 #password 12345
@@ -31,43 +28,22 @@ DB_NAME = "database.db"
 app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{DB_NAME}'
 db = SQLAlchemy(app)
 
+# Initialize Flask-Login
+login_manager = LoginManager()
+login_manager.login_view = 'login'  # Update with your login route
+login_manager.init_app(app)
 
-def create_app():
-    app = Flask(__name__)
+class User(db.Model, UserMixin):
+    id = db.Column(db.Integer, primary_key=True)
+    email = db.Column(db.String(150), unique=True)
+    password = db.Column(db.String(150))
+    name = db.Column(db.String(150))
+    date_joined = db.Column(db.Date, default=datetime.utcnow)
+    role = db.Column(db.String(20))
 
-    app.config['SECRET_KEY'] = 'this is a secret key'
-    app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{DB_NAME}'
-    app.config['UPLOAD_FOLDER'] = 'uploads/'
-    app.config['ALLOWED_EXTENSIONS'] = {'mp4', 'avi', 'mov'}
-    app.config['MODELS_FOLDER'] = 'FYP/models'
-    app.secret_key = 'this is a secret key'
-
-    db.init_app(app)
-
-    from models import User
-
-    create_database(app)
-
-    login_manager = LoginManager()
-    login_manager.login_view = 'auth.login'
-    login_manager.init_app(app)
-
-    @login_manager.user_loader
-    def load_user(id):
-        return User.query.get(int(id))
-
-    return app
-
-
-def create_database(app):
-    if not path.exists('website/' + DB_NAME):
-        with app.app_context():
-            db.create_all()
-            print('Database created')
-
-
-
-
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
 
 # Define the Users model
 # class User(db.Model):
@@ -84,17 +60,6 @@ def create_database(app):
 # @app.route('/')
 # def home():
 #     return render_template('home.html')
-
-
-
-
-if __name__ == '__main__':
-    with app.app_context():
-        db.create_all()  # Create the "users" table in the database
-    app.run(debug=True)
-
-
-
 
 @app.route('/')
 def home():
@@ -144,64 +109,73 @@ def accounts():
 #  Customer pages
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
-    create_user_form = CreateUserForm(request.form)
-    if request.method == 'POST' and create_user_form.validate():
-        accounts_dict = {}
-        db = shelve.open('storage.db', 'c')
+    if request.method == 'POST':
+        # Get information from forms
+        form = CreateUserForm(request.form)
+        email = request.form.get('email')
+        name = request.form.get('name')
+        password1 = request.form.get('password1')
+        password2 = request.form.get('password2')
 
         try:
-            accounts_dict = db['Users']
-        except:
-            print("Error in retrieving Users from storage.db.")
+            user = User.query.filter_by(email=email).first()
 
-        user = User.User(create_user_form.first_name.data, create_user_form.last_name.data, create_user_form.birthday.data, create_user_form.gender.data, create_user_form.email.data, create_user_form.phone_number.data, create_user_form.password.data)
-        accounts_dict[user.get_user_id()] = user
-        db['Users'] = accounts_dict
-        db.close()
-        # flash(f'Account Created Successfully for {create_user_form.first_name.data}', category='success')
-        return redirect(url_for('face_registration'))
-    return render_template('signup.html', form=create_user_form)
+            if user:
+                flash('Email already exists', category='error')
+            elif len(email) < 4:
+                flash('Invalid Email', category='error')
+            elif len(name) < 2:
+                flash('Invalid Name', category='error')
+            elif password1 != password2:
+                flash('Passwords do not match', category='error')
+
+            else:
+                # add user to database
+                print(email)
+                print(name)
+                new_user = User(email=email, name=name, password=password1, role='Student')
+                db.session.add(new_user)
+                db.session.commit()
+                login_user(new_user, remember=True)
+
+                flash("Account created", category='success')
+                return redirect(url_for('login'))  # Update with your login route
+
+        except Exception as e:
+            flash('An error occurred while creating the account', category='error')
+            print(f"Error: {str(e)}")
+
+    return render_template('signup.html', user=current_user)
+
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    users_dict = {}
-    db = shelve.open('storage.db','r')
-    users_dict = db['Users']
-    users_list = []
+    # When you access request inside of a route, it will have information about the request that was sent to access this route
+    # It will say the URL, the method
+    # We can access the form attribute of our request; has all of the data that was sent as a part of the form
+    if request.method == 'POST':
+        email = request.form.get('email')
+        password = request.form.get('password')
 
-    # If there is no account in database, direct user to signup page
-    if users_dict == {}:
-        return redirect(url_for('signup'))
+        user = User.query.filter_by(email=email).first()
+        if user:
+            if (user.password, password):
+                flash('Logged in successfullly!', category='success')
+                login_user(user, remember=True)
+                session['user_id'] = user.id
+                session['user_name'] = user.name
+                session['role'] = user.role
 
-    else:
-        for key in users_dict:
-            user = users_dict.get(key)
-            print(key)
-            users_list.append(user)
-            form = LogIn(request.form)
-            if request.method == 'POST' and form.validate():
-                for user in users_list:
-                    if form.email.data == user.get_email() and form.password.data == user.get_password():
-                        flash('Log in successfully!', 'success')
+                return redirect(url_for('student_homepage'))
+            else:
+                flash('Incorrect password', category='error')
+        else:
+            flash('Email does not exist', category='error')
 
-                        id = user.get_user_id()
-                        first_name = user.get_first_name()
-                        last_name = user.get_last_name()
-                        birthday = user.get_birthday()
-                        gender = user.get_gender()
-                        email = user.get_email()
-                        phone_number = user.get_phone_number()
-                        password = user.get_password()
 
-                        user_details = [id, first_name,last_name,birthday,gender,email,phone_number,password]
-                        session['user'] = user_details
+    # login_url = url_for('auth.callback', _external=True)
+    return render_template('login.html', user=current_user)
 
-                        return redirect(url_for("student_homepage"))
-                    else:
-                        if "user" in session:
-                            return render_template('login.html')
-                        flash('Log in unsuccessful, please try again!','danger')
-    return render_template('login.html', title='Login', form=form)
 
 
 # Customer have to log out after logging in their account
@@ -218,121 +192,14 @@ def customer_profile():
 
 @app.route('/logout')
 def logout():
-    session.pop("user", None)
-    session.pop("staff", None)
-    cart_dict = {}
-    db = shelve.open('storage.db', 'c')
-    cart_dict = db['Cart']
-    cart_dict.clear()
-    db['Cart'] = cart_dict
-    db.close()
+    session.pop("user_id", None)
+    session.pop("user_name", None)
+    session.pop("role", None)
+
+    print(session)
 
     return redirect(url_for('login'))
 
-
-@app.route('/customer_update/<int:id>/', methods=['GET', 'POST'])
-def customer_update(id):
-    if 'user' in session:
-
-        update_user_form = CreateUserForm(request.form)
-        if request.method == 'POST' and update_user_form.validate():
-            accounts_dict = {}
-            db = shelve.open('storage.db', 'w')
-            accounts_dict = db['Users']
-            user = accounts_dict.get(id)
-            user.set_first_name(update_user_form.first_name.data)
-            user.set_last_name(update_user_form.last_name.data)
-            user.set_birthday(update_user_form.birthday.data)
-            user.set_gender(update_user_form.gender.data)
-            user.set_email(update_user_form.email.data)
-            user.set_phone_number(update_user_form.phone_number.data)
-            user.set_password(update_user_form.password.data)
-            # Update session's new list to show on customer's profile
-            id = user.get_user_id()
-            first_name = user.get_first_name()
-            last_name = user.get_last_name()
-            birthday = user.get_birthday()
-            gender = user.get_gender()
-            email = user.get_email()
-            phone_number = user.get_phone_number()
-            password = user.get_password()
-            session['user'] = [id,first_name,last_name,birthday,gender,email,phone_number,password]
-            # Update new details to the database
-            db['Users'] = accounts_dict
-            db.close()
-            return redirect(url_for('customer_profile'))
-        else:
-            accounts_dict = {}
-            db = shelve.open('storage.db', 'r')
-            accounts_dict = db['Users']
-            db.close()
-            user = accounts_dict.get(id)
-            update_user_form.first_name.data = user.get_first_name()
-            update_user_form.last_name.data = user.get_last_name()
-            update_user_form.birthday.data = user.get_birthday()
-            update_user_form.gender.data = user.get_gender()
-            update_user_form.email.data = user.get_email()
-            update_user_form.phone_number.data = user.get_phone_number()
-            update_user_form.password.data = user.get_password()
-        return render_template('account.html', form=update_user_form)
-    else:
-        return redirect(url_for('login'))
-
-@app.route('/updateUser/<int:id>/', methods=['GET', 'POST'])
-def update_user(id):
-    update_user_form = CreateUserForm(request.form)
-    if request.method == 'POST' and update_user_form.validate():
-        accounts_dict = {}
-        db = shelve.open('storage.db', 'w')
-        accounts_dict = db['Users']
-
-        user = accounts_dict.get(id)
-        user.set_first_name(update_user_form.first_name.data)
-        user.set_last_name(update_user_form.last_name.data)
-        user.set_birthday(update_user_form.birthday.data)
-        user.set_gender(update_user_form.gender.data)
-        user.set_email(update_user_form.email.data)
-        user.set_phone_number(update_user_form.phone_number.data)
-        user.set_password(update_user_form.password.data)
-
-        db['Users'] = accounts_dict
-        db.close()
-
-        return redirect(url_for('accounts'))
-    else:
-        accounts_dict = {}
-        db = shelve.open('storage.db', 'r')
-        accounts_dict = db['Users']
-        db.close()
-
-        user = accounts_dict.get(id)
-        update_user_form.first_name.data = user.get_first_name()
-        update_user_form.last_name.data = user.get_last_name()
-        update_user_form.birthday.data = user.get_birthday()
-        update_user_form.gender.data = user.get_gender()
-        update_user_form.email.data = user.get_email()
-        update_user_form.phone_number.data = user.get_phone_number()
-        update_user_form.password.data = user.get_password()
-
-    return render_template('account.html', form=update_user_form)
-
-@app.route('/deleteUser/<int:id>', methods=['POST'])
-def delete_user(id):
-    users_dict = {}
-    db = shelve.open('storage.db', 'w')
-    users_dict = db['Users']
-
-    users_dict.pop(id)
-
-    db['Users'] = users_dict
-    db.close()
-
-    if 'user' in session:
-        return redirect(url_for('logout'))
-    elif 'staff' in session:
-        return redirect(url_for('accounts'))
-
-    return redirect(url_for('logout'))
 
 @app.route('/face_registration', methods=['GET', 'POST'])
 def face_registration():
@@ -543,3 +410,7 @@ def generate_frames():
     camera.release()
 
 
+if __name__ == '__main__':
+    with app.app_context():
+        db.create_all()  # Create the "users" table in the database
+    app.run(debug=True)

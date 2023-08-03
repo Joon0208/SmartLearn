@@ -13,15 +13,17 @@
     />
   </head>
   <body>
-    {% if 'user' in session %} {% block user_navbar %} {% include
-    'includes/_student_nav.html' %} {% endblock %} {% elif 'staff' in session %}
-    {% block staff_navbar %} {% include 'includes/_staff_nav.html' %} {%
-    endblock %} {% else %} {% block navbar %} {% include 'includes/_navbar.html'
-    %} {% endblock %} {% endif %}
+    <!-- Common navbar code -->
+    {% if 'user_id' in session %}
+        {% if session['role'] == 'Student' %}
+            {% block user_navbar %} {% include 'includes/_student_nav.html' %} {% endblock %}
+        {% elif session['role'] == 'Staff' %}
+            {% block staff_navbar %} {% include 'includes/_staff_nav.html' %} {% endblock %}
+        {% endif %}
+    {% else %}
+        {% block navbar %} {% include 'includes/_navbar.html' %} {% endblock %}
+    {% endif %}
 
-    <div class="container d-flex flex-column min-vh-100">
-      {% block content %} {% endblock %}
-    </div>
 
     {% block content %}{% endblock %} {% block scripts %}
     <!-- jQuery 3.5.1, Popper 1.16.1, Bootstrap 4.5.2 JavaScript -->
