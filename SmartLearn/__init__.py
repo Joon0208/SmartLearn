@@ -1,7 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, session, Response, jsonify
 from Forms import *
 import shelve, base64, os
-from eye_tracking import generate_frames
 from facial_recognition import gen_frames
 import cv2 as cv
 import mediapipe as mp
