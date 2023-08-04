@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, session, Response, jsonify
 from Forms import *
-import shelve, User, base64, os
+import shelve, base64, os
 from eye_tracking import generate_frames
 from facial_recognition import gen_frames
 import cv2 as cv
@@ -188,19 +188,6 @@ def login():
 
     return render_template('login.html', user=current_user)
 
-
-
-# Customer have to log out after logging in their account
-# One disadvantage is customer have to logout of their account to see their edits
-@app.route('/customer_profile', methods = ['GET', 'POST'])
-def customer_profile():
-    if 'user' in session:
-        user = session["user"]
-        accounts_list = user[1:8]
-        id = user[0]
-        return render_template('customer_profile.html', accounts_list=accounts_list, id=id)
-    else:
-        return redirect(url_for('login'))
 
 @app.route('/logout')
 def logout():
