@@ -107,7 +107,7 @@ def stafflogin():
             flash('Log in unsuccessful, please try again!','danger')
     return render_template('stafflogin.html', title='Login', form=form)
 
-@app.route('/accounts')
+@app.route('/account')
 def accounts():
     accounts_dict = {}
     db = shelve.open('storage.db', 'r')
@@ -164,30 +164,28 @@ def signup():
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    # When you access request inside of a route, it will have information about the request that was sent to access this route
-    # It will say the URL, the method
-    # We can access the form attribute of our request; has all of the data that was sent as a part of the form
     if request.method == 'POST':
         email = request.form.get('email')
         password = request.form.get('password')
 
         user = User.query.filter_by(email=email).first()
         if user:
-            if (user.password, password):
-                flash('Logged in successfullly!', category='success')
+            if user.password == password:
+                flash('Logged in successfully!', category='success')
                 login_user(user, remember=True)
                 session['user_id'] = user.id
                 session['user_name'] = user.name
                 session['role'] = user.role
 
-                return redirect(url_for('student_homepage'))
+                if user.role == 'Student':
+                    return redirect(url_for('student_homepage'))
+                elif user.role == 'Staff':
+                    return redirect(url_for('staff_homepage'))
             else:
                 flash('Incorrect password', category='error')
         else:
             flash('Email does not exist', category='error')
 
-
-    # login_url = url_for('auth.callback', _external=True)
     return render_template('login.html', user=current_user)
 
 
