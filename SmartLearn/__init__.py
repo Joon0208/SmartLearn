@@ -41,6 +41,20 @@ class User(db.Model, UserMixin):
     date_joined = db.Column(db.Date, default=datetime.utcnow)
     role = db.Column(db.String(20))
 
+from flask_login import UserMixin
+
+class Exam_Attempt(db.Model, UserMixin):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(150))
+    non_center_eye_count = db.Column(db.Integer)
+    time_taken = db.Column(db.Float)
+
+    def __init__(self, name, non_center_eye_count, time_taken):
+        self.name = name
+        self.non_center_eye_count = non_center_eye_count
+        self.time_taken = time_taken
+
+
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
@@ -261,6 +275,15 @@ def exam1():
 
     return render_template('exam1.html')
 
+@app.route('/exam_result')
+def exam_result():
+    # Query the Exam_Attempt model to get all attempts
+    exam_attempts = Exam_Attempt.query.all()
+
+    # Render the exam_result.html template with the exam_attempts data
+    return render_template('exam_result.html', exam_attempts=exam_attempts)
+
+
 # Initialize a flag to signal when to stop the frame generation
 stop_frame_generation = False
 
@@ -285,9 +308,9 @@ def stop_camera():
     # score = submit_score.__get__(score)
 
 
-    # Create a new Users record and add it to the database
-    user = User(name="John Doe", non_center_eye_count=non_center_eye_count, elapsed_time_seconds=elapsed_time_seconds)
-    db.session.add(user)
+    # Create a new Exam record and add it to the database
+    exam_attempts = Exam_Attempt(name=session['user_name'], non_center_eye_count=non_center_eye_count, time_taken=elapsed_time_seconds)
+    db.session.add(exam_attempts)
     print("Non-center_eye_count and Time added to the database")
     db.session.commit()
 

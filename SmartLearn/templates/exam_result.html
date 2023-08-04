@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Yammy - Student Exam {% endblock %}
+
+{% block content %}
+  <div class="container">
+    <h1>Exam Results</h1>
+    <table class="table table-bordered">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Name</th>
+          <th>Non-Center Eye Count</th>
+          <th>Time Taken</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for attempt in exam_attempts %}
+          <tr>
+            <td>{{ attempt.id }}</td>
+            <td>{{ attempt.name }}</td>
+            <td>{{ attempt.non_center_eye_count }}</td>
+            <td>{{ attempt.time_taken }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% endblock %}
