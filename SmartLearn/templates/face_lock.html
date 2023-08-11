@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}SmartLearn - Face Lock{% endblock %}
+
+{% block content %}
+
+<div class="bg-white py-5">
+  <div class="container py-5">
+    <div class="row align-items-center mb-5">
+      <div class="col-lg-6 order-2 order-lg-1">
+        <i class="fa fa-bar-chart fa-2x mb-3 text-primary"></i>
+        <h2 class="font-weight-light">Face Lock </h2>
+        <div>
+          <img src="{{ url_for('video_feed') }}" alt="Live Stream" id="video_feed">
+        </div>
+        <!-- Rest of your HTML code -->
+
+
+
+<!-- Rest of your HTML code -->
+
+        {% if allow_unlock %}
+          <p>{{ message }}</p>
+          <a href="{{ url_for('student_homepage') }}" class="btn btn-success">Unlock</a>
+        {% else %}
+          <p>{{ message }}</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
