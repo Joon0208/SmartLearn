@@ -3,13 +3,13 @@ from flask_socketio import SocketIO
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, login_user, UserMixin, current_user
 from Forms import *
+from datetime import datetime
+
 import shelve, base64, os
 import cv2 as cv
 import mediapipe as mp
 import time
 import numpy as np
-
-from datetime import datetime
 import math
 import face_recognition
 import io
@@ -27,7 +27,6 @@ login_manager = LoginManager()
 login_manager.login_view = 'login'  # Update with your login route
 login_manager.init_app(app)
 
-from flask_login import UserMixin
 
 class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
@@ -75,32 +74,6 @@ def return_home():
     return render_template('returnHome.html')
 
 # JiaJun
-# Staff pages
-@app.route('/stafflogin', methods=['GET', 'POST'])
-def stafflogin():
-
-    form = LogIn(request.form)
-    if request.method == 'POST' and form.validate():
-        if form.email.data == "staff@account" and form.password.data == 'staffpass':
-            flash('Log in successfully!', 'success')
-            session['staff'] = 'staff'
-            return redirect(url_for("staff_homepage"))
-        else:
-            flash('Log in unsuccessful, please try again!','danger')
-    return render_template('stafflogin.html', title='Login', form=form)
-
-@app.route('/account')
-def accounts():
-    accounts_dict = {}
-    db = shelve.open('storage.db', 'r')
-    accounts_dict = db['Users']
-    db.close()
-    accounts_list = []
-    for key in accounts_dict:
-        user = accounts_dict.get(key)
-        accounts_list.append(user)
-
-    return render_template('accounts.html', count=len(accounts_list), users_list=accounts_list)
 
 #  Customer pages
 @app.route('/signup', methods=['GET', 'POST'])
@@ -291,7 +264,6 @@ def stop_camera():
 def video_feed():
     return Response(gen_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
 
-from flask import redirect, url_for
 
 @app.route('/face_lock')
 def face_lock():
@@ -299,22 +271,17 @@ def face_lock():
 
     if fr is None:
         fr = FaceRecognition()
-    print(fr.face_names)
-    detected_users = [name.split(' ')[0] for name in fr.face_names]
+
+    frame = None  # Capture a new frame here if needed
+    detected_frame, detected_user = fr.run_recognition(frame)  # Pass the captured frame to run_recognition
+    print(detected_user)
+
     current_user_name = current_user.name  # Assuming 'current_user' is a User object from Flask-Login
-    print("Detected Users:", detected_users)
-    print("Current User Name:", current_user_name)
 
-    if current_user in detected_users:
-        allow_unlock = True
-        message = "User detected. Click the button to unlock."
-        print('Authenticated')
-    else:
-        allow_unlock = False
-        print('Wrong User')
-        message = "Wrong user detected."
+    allow_unlock = current_user_name == detected_user  # Check if detected user matches current user
+    message = "User Authenticated. Click the button to proceed." if allow_unlock else "Wrong user detected."
 
-    return render_template('face_lock.html', allow_unlock=allow_unlock, message=message)
+    return render_template('face_lock.html', allow_unlock=allow_unlock, message=message, detected_user=detected_user, detected_frame=detected_frame)
 
 
 fr = None  # FaceRecognition instance
@@ -329,12 +296,13 @@ def gen_frames():
             # Perform face recognition on the frame
             if fr is None:
                 fr = FaceRecognition()
-            frame = fr.run_recognition(frame)
+            frame, detected_user = fr.run_recognition(frame)
 
             ret, buffer = cv.imencode('.jpg', frame)
             frame = buffer.tobytes()
             yield (b'--frame\r\n'
                    b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
+
 
 
 def face_confidence(face_distance, face_match_threshold=0.6):
@@ -372,7 +340,13 @@ class FaceRecognition:
 
         print(self.known_face_names)
 
-    def run_recognition(self, frame):
+    def run_recognition(self, frame=None):
+        if frame is None:
+            # Capture a frame from your camera or video feed
+            success, frame = camera.read()  # Update this line as per your camera setup
+            if not success:
+                return None, None  # Return None if frame capture fails
+
         # Perform face recognition on the provided frame
         # Resize frame of video to 1/4 size for faster face recognition processing
         small_frame = cv.resize(frame, (0, 0), fx=0.25, fy=0.25)
@@ -385,7 +359,7 @@ class FaceRecognition:
         self.face_encodings = face_recognition.face_encodings(rgb_small_frame, self.face_locations)
 
         self.face_names = []
-        self.detected_user = None
+        detected_user = None
         for face_encoding in self.face_encodings:
             # See if the face is a match for the known face(s)
             matches = face_recognition.compare_faces(self.known_face_encodings, face_encoding)
@@ -402,8 +376,8 @@ class FaceRecognition:
 
             name = name.split(".")[0]
             self.face_names.append(f'{name} ({confidence})')
-            self.detected_user = name
-            print(name)
+            detected_user = name
+            # print(name)
 
 
         # Display the results
@@ -418,7 +392,7 @@ class FaceRecognition:
             cv.rectangle(frame, (left, top), (right, bottom), (0, 0, 255), 2)
             cv.rectangle(frame, (left, bottom - 35), (right, bottom), (0, 0, 255), cv.FILLED)
             cv.putText(frame, name, (left + 6, bottom - 6), cv.FONT_HERSHEY_DUPLEX, 0.8, (255, 255, 255), 1)
-        return frame
+        return frame, detected_user
 
 
 
