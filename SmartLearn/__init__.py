@@ -5,7 +5,7 @@ from flask_login import LoginManager, login_user, UserMixin, current_user
 from Forms import *
 from datetime import datetime
 
-import shelve, base64, os
+import base64, os
 import cv2 as cv
 import mediapipe as mp
 import time
@@ -14,20 +14,17 @@ import math
 import face_recognition
 import io
 
+# Initialize the Flask app
 app = Flask(__name__)
 app.secret_key = 'hi'
 socketio = SocketIO(app)
 
+# Configure the database
 DB_NAME = "database.db"
 app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{DB_NAME}'
 db = SQLAlchemy(app)
 
-# Initialize Flask-Login
-login_manager = LoginManager()
-login_manager.login_view = 'login'  # Update with your login route
-login_manager.init_app(app)
-
-
+# Define the User class for database
 class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(150), unique=True)
@@ -36,6 +33,7 @@ class User(db.Model, UserMixin):
     date_joined = db.Column(db.Date, default=datetime.utcnow)
     role = db.Column(db.String(20))
 
+# Define the Exam_Attempt class for database
 class Exam_Attempt(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(150))
@@ -47,15 +45,23 @@ class Exam_Attempt(db.Model, UserMixin):
         self.non_center_eye_count = non_center_eye_count
         self.time_taken = time_taken
 
+# Define the ImageModel class for database
 class ImageModel(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_name = db.Column(db.String(255), nullable=False)
     image_data = db.Column(db.LargeBinary, nullable=False)
 
+# Initialize Flask-Login
+login_manager = LoginManager()
+login_manager.login_view = 'login'  # Update with your login route
+login_manager.init_app(app)
+
+# Load user data for Flask-Login
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
 
+# Define the home route
 @app.route('/')
 def home():
     if 'user' in session:
@@ -65,17 +71,17 @@ def home():
     else:
         return render_template('home.html')
 
+# Define the aboutUs route
 @app.route('/aboutUs')
 def about_us():
     return render_template('aboutUs.html')
 
+# Define the returnHome route
 @app.route('/returnHome')
 def return_home():
     return render_template('returnHome.html')
 
-# JiaJun
-
-#  Customer pages
+# Define the signup route
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
     if request.method == 'POST':
@@ -116,7 +122,7 @@ def signup():
 
     return render_template('signup.html', user=current_user)
 
-
+# Define the login route
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
@@ -143,7 +149,7 @@ def login():
 
     return render_template('login.html', user=current_user)
 
-
+# Define the logout route
 @app.route('/logout')
 def logout():
     session.pop("user_id", None)
@@ -154,7 +160,7 @@ def logout():
 
     return redirect(url_for('login'))
 
-
+# Define the face_registration route
 @app.route('/face_registration', methods=['GET','POST'])
 def face_registration():
     if request.method == 'POST':
@@ -186,29 +192,32 @@ def face_registration():
 
     return render_template('face_registration.html', detection_status=False)
 
-
-
-
+# Define the eye_tracking_video route
 @app.route('/eye_tracking_video')
 def eye_tracking_video():
     return Response(generate_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
 
+# Define the eye_tracking route
 @app.route('/eye_tracking')
 def eye_tracking():
     return render_template('eye_tracking.html')
 
+# Define the student_homepage route
 @app.route('/student_homepage')
 def student_homepage():
     return render_template('student_homepage.html')
 
+# Define the staff_homepage route
 @app.route('/staff_homepage')
 def staff_homepage():
     return render_template('staff_homepage.html')
 
+# Define the exam route
 @app.route('/exam')
 def exam():
     return render_template('exam.html')
 
+# Define the exam1 route
 @app.route('/exam1')
 def exam1():
     global stop_frame_generation
@@ -216,6 +225,7 @@ def exam1():
 
     return render_template('exam1.html')
 
+# Define the exam_result
 @app.route('/exam_result')
 def exam_result():
     # Query the Exam_Attempt model to get all attempts
@@ -260,11 +270,12 @@ def stop_camera():
 
 # Facial Recognition Function
 
+# Define the video_feed route
 @app.route('/video_feed')
 def video_feed():
     return Response(gen_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
 
-
+# Define the face_lock route
 @app.route('/face_lock')
 def face_lock():
     global fr
@@ -279,13 +290,13 @@ def face_lock():
     current_user_name = current_user.name  # Assuming 'current_user' is a User object from Flask-Login
 
     allow_unlock = current_user_name == detected_user  # Check if detected user matches current user
-    message = "User Authenticated. Click the button to proceed." if allow_unlock else "Wrong user detected."
+    message = "User Authenticated. Click the button to proceed." if allow_unlock else "Wrong user detected. Please Refresh the page to authenticate again!"
 
     return render_template('face_lock.html', allow_unlock=allow_unlock, message=message, detected_user=detected_user, detected_frame=detected_frame)
 
-
 fr = None  # FaceRecognition instance
 
+# Define the gen_frames function for video streaming
 def gen_frames():
     global fr
     while True:
@@ -304,7 +315,7 @@ def gen_frames():
                    b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
 
 
-
+# Define the face_confidence function for video streaming
 def face_confidence(face_distance, face_match_threshold=0.6):
     range = (1.0 - face_match_threshold)
     linear_val = (1.0 - face_distance) / (range * 2.0)
@@ -315,6 +326,7 @@ def face_confidence(face_distance, face_match_threshold=0.6):
         value = (linear_val + ((1.0 - linear_val) * math.pow((linear_val - 0.5) * 2, 0.2))) * 100
         return str(round(value, 2)) + '%'
 
+# Define the FaceRecognition class
 class FaceRecognition:
     face_locations = []
     face_encodings = []
@@ -393,11 +405,6 @@ class FaceRecognition:
             cv.rectangle(frame, (left, bottom - 35), (right, bottom), (0, 0, 255), cv.FILLED)
             cv.putText(frame, name, (left + 6, bottom - 6), cv.FONT_HERSHEY_DUPLEX, 0.8, (255, 255, 255), 1)
         return frame, detected_user
-
-
-
-
-
 
 # Exam Monitoring Function
 
