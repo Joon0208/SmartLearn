@@ -1,16 +1,32 @@
 {% extends "base.html" %}
-{% block title %}Yammy - Student Exam {% endblock %}
+{% block title %}Yammy - Student Exam{% endblock %}
 
 {% block content %}
-
-  <div class = "bg-light">
-    <div class="row align-items-center">
-      <div class="col-lg-6"><i class="fa fa-leaf fa-2x mb-3 text-primary"></i>
-        <h2 class="font-weight-light">Exam</h2>
-        <p class="font-italic text-muted mb-4">Closed Book Python Test</p><a href="/face_lock" class="btn btn-light px-5 rounded-pill shadow-sm"> Take exam</a>
+<div class="container py-5">
+    <div class="row align-items-center mb-5">
+        <div class="col-lg-6 mb-4 mb-lg-0">
+            <h2 class="font-weight-light">Python Exam (Closed Book)</h2>
+            <p class="font-italic text-muted mb-4">(Ongoing)</p>
+            <a href="/face_lock" class="btn btn-primary rounded-pill px-5 shadow-sm">Take Exam</a>
+        </div>
+        <div class="col-lg-5">
+            <img src="{{ url_for('static', filename='img/student_icon.jpg') }}" class="img-fluid max-width-100">
+        </div>
     </div>
-  </div>
 </div>
 
-
+<div class="bg-light py-5">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-5 order-lg-2 mb-4 mb-lg-0">
+                <img src="{{ url_for('static', filename='img/student_icon.jpg') }}" class="img-fluid max-width-100">
+            </div>
+            <div class="col-lg-6 order-lg-1">
+                <h2 class="font-weight-light">Practical Exam (Open Book)</h2>
+                <p class="font-italic text-muted mb-4">(Closed)</p>
+                <a href="#" class="btn btn-primary rounded-pill px-5 shadow-sm">Take Exam</a>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}

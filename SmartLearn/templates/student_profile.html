@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Student Profile{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="card">
+        <div class="card-body">
+            <h2 class="card-title">Student Profile</h2>
+            <dl class="row">
+                <dt class="col-sm-3">ID</dt>
+                <dd class="col-sm-9">{{ user.id }}</dd>
+
+                <dt class="col-sm-3">Name</dt>
+                <dd class="col-sm-9">{{ user.name }}</dd>
+
+                <dt class="col-sm-3">Email</dt>
+                <dd class="col-sm-9">{{ user.email }}</dd>
+
+                <dt class="col-sm-3">Date Joined</dt>
+                <dd class="col-sm-9">{{ user.date_joined.strftime('%Y-%m-%d') }}</dd>
+
+                <dt class="col-sm-3">Role</dt>
+                <dd class="col-sm-9">{{ user.role }}</dd>
+
+                <!-- Add more fields as needed -->
+
+            </dl>
+        </div>
+    </div>
+</div>
+{% endblock %}

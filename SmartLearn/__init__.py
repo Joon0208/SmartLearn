@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, session, Response, jsonify
 from flask_socketio import SocketIO
 from flask_sqlalchemy import SQLAlchemy
-from flask_login import LoginManager, login_user, UserMixin, current_user
+from flask_login import LoginManager, login_user, UserMixin, current_user, login_required
 from Forms import *
 from datetime import datetime
 
@@ -38,12 +38,13 @@ class Exam_Attempt(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(150))
     non_center_eye_count = db.Column(db.Integer)
-    time_taken = db.Column(db.Float)
-
-    def __init__(self, name, non_center_eye_count, time_taken):
+    time_taken = db.Column(db.String(20))
+    score = db.Column(db.Integer)
+    def __init__(self, name, non_center_eye_count, time_taken, score):
         self.name = name
         self.non_center_eye_count = non_center_eye_count
         self.time_taken = time_taken
+        self.score = score
 
 # Define the ImageModel class for database
 class ImageModel(db.Model):
@@ -75,11 +76,6 @@ def home():
 @app.route('/aboutUs')
 def about_us():
     return render_template('aboutUs.html')
-
-# Define the returnHome route
-@app.route('/returnHome')
-def return_home():
-    return render_template('returnHome.html')
 
 # Define the signup route
 @app.route('/signup', methods=['GET', 'POST'])
@@ -180,14 +176,6 @@ def face_registration():
         db.session.add(image_instance)
         db.session.commit()
 
-        # Generate a unique filename using the user's name
-        image_filename = f'{user_name}.jpg'
-
-        # Save the captured image directly under the 'faces' directory
-        image_path = os.path.join('faces', image_filename)
-        with open(image_path, 'wb') as f:
-            f.write(image_data)
-
         return redirect(url_for('login'))
 
     return render_template('face_registration.html', detection_status=False)
@@ -204,21 +192,38 @@ def eye_tracking():
 
 # Define the student_homepage route
 @app.route('/student_homepage')
+@login_required
 def student_homepage():
-    return render_template('student_homepage.html')
+    user = User.query.get(current_user.id)  # Retrieve user information from the database
+    print("User ID:", user.id)
+    print("Email:", user.email)
+    print("Name:", user.name)
+    print("Date Joined:", user.date_joined)
+    print("Role:", user.role)
+
+    return render_template('student_homepage.html', user=user)
+
+@app.route('/student_profile')
+@login_required
+def student_profile():
+    user = User.query.get(current_user.id)  # Retrieve user information from the database
+    return render_template('student_profile.html', user=user)
 
 # Define the staff_homepage route
 @app.route('/staff_homepage')
+@login_required
 def staff_homepage():
     return render_template('staff_homepage.html')
 
 # Define the exam route
 @app.route('/exam')
+@login_required
 def exam():
     return render_template('exam.html')
 
 # Define the exam1 route
 @app.route('/exam1')
+@login_required
 def exam1():
     global stop_frame_generation
     stop_frame_generation = False
@@ -227,45 +232,13 @@ def exam1():
 
 # Define the exam_result
 @app.route('/exam_result')
+@login_required
 def exam_result():
     # Query the Exam_Attempt model to get all attempts
     exam_attempts = Exam_Attempt.query.all()
 
     # Render the exam_result.html template with the exam_attempts data
     return render_template('exam_result.html', exam_attempts=exam_attempts)
-
-
-# Initialize a flag to signal when to stop the frame generation
-stop_frame_generation = False
-
-# @app.route('/submit_score', methods=['POST'])
-# def submit_score():
-#     global score
-#     data = request.get_json()
-#     score = data.get('score')
-#
-#     # Do whatever you want to do with the score here
-#     print(f'Score submitted: {score}')
-#     return jsonify({'message': 'Score submitted successfully', 'score': int(score)})
-
-# Route to handle the AJAX request to stop the camera
-@app.route('/stop_camera')
-def stop_camera():
-    global stop_frame_generation
-    # global score
-    stop_frame_generation = True
-    print(non_center_eye_count)
-    print(int(elapsed_time_seconds))
-    # score = submit_score.__get__(score)
-
-
-    # Create a new Exam record and add it to the database
-    exam_attempts = Exam_Attempt(name=session['user_name'], non_center_eye_count=non_center_eye_count, time_taken=elapsed_time_seconds)
-    db.session.add(exam_attempts)
-    print("Non-center_eye_count and Time added to the database")
-    db.session.commit()
-
-    return jsonify({'message': 'Camera stopped successfully'})
 
 
 # Facial Recognition Function
@@ -277,6 +250,7 @@ def video_feed():
 
 # Define the face_lock route
 @app.route('/face_lock')
+@login_required
 def face_lock():
     global fr
 
@@ -407,6 +381,52 @@ class FaceRecognition:
         return frame, detected_user
 
 # Exam Monitoring Function
+
+
+# Initialize a flag to signal when to stop the frame generation
+stop_frame_generation = False
+
+# @app.route('/submit_score', methods=['POST'])
+# def submit_score():
+#     data = request.get_json()
+#     print('data:', data)
+#     score = data.get('score:')  # Get the score from the request data
+#     print('score', score)
+#     exam_attempt = Exam_Attempt(score=score)
+#     db.session.add(exam_attempt)
+#     db.session.commit()
+#     return jsonify({'message': 'Score submitted successfully'})
+
+
+# Route to handle the AJAX request to stop the camera
+@app.route('/stop_camera', methods=['POST'])
+def stop_camera():
+    global stop_frame_generation
+    stop_frame_generation = True
+    data = request.get_json()
+    print(data)
+
+    # Calculate the combined time string
+    time_taken_minutes = int(elapsed_time_seconds // 60)
+    time_taken_seconds = int(elapsed_time_seconds % 60)
+    combined_time_string = f'{time_taken_minutes}min{time_taken_seconds}sec'
+    score = data.get('score', 0)
+    print(score)
+
+    # Create a new Exam_Attempt record and add it to the database
+    exam_attempt = Exam_Attempt(
+        name=session['user_name'],
+        non_center_eye_count=non_center_eye_count,  # Replace with actual non_center_eye_count
+        time_taken=combined_time_string,
+        score = score)
+
+    print(session['user_name'],non_center_eye_count,combined_time_string,score)
+    db.session.add(exam_attempt)
+    db.session.commit()
+
+    return jsonify({'message': 'Camera stopped successfully', 'time_taken': combined_time_string})
+
+
 
 frame_counter = 0
 FONTS = cv.FONT_HERSHEY_COMPLEX
