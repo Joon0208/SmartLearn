@@ -95,7 +95,6 @@ class User(db.Model, UserMixin):
     # questions = db.relationship('Question', backref='user', lazy=True)
     reports = db.relationship('Report', backref='user', lazy=True)
 
-
 # Define the Exam_Attempt class for database
 class Exam_Attempt(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
@@ -103,12 +102,13 @@ class Exam_Attempt(db.Model, UserMixin):
     non_center_eye_count = db.Column(db.Integer)
     time_taken = db.Column(db.String(20))
     score = db.Column(db.Integer)
-    def _init_(self, name, non_center_eye_count, time_taken, score):
+    activity = db.Column(db.String(20))
+    def __init__(self, name, non_center_eye_count, time_taken, score,activity):
         self.name = name
         self.non_center_eye_count = non_center_eye_count
         self.time_taken = time_taken
         self.score = score
-
+        self.activity = activity
 
 
 # Define the ImageModel class for database
@@ -425,11 +425,6 @@ def create_index():
     authorization_url = f"https://zoom.us/oauth/authorize?response_type=code&client_id={CLIENT_ID}&redirect_uri={REDIRECT_URI}"
     return redirect(authorization_url)
 
-
-# @views.route('/video_feed2')
-# def video_feed2():
-#     return Response(generate_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
-
 @app.route('/video_feed2')
 def video_feed2():
     if is_webcam_open():
@@ -500,6 +495,7 @@ def send_emails(meeting_url, recipients):
 ###########################################################################################################
 # JiaJun
 
+
 # Initialize Flask-Login
 login_manager = LoginManager()
 login_manager.login_view = 'login'  # Update with your login route
@@ -509,8 +505,6 @@ login_manager.init_app(app)
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
-
-
 
 # Define the home route
 @app.route('/')
@@ -604,7 +598,7 @@ def logout():
     return redirect(url_for('login'))
 
 # Define the face_registration route
-@app.route('/face_registration', methods=['GET', 'POST'])
+@app.route('/face_registration', methods=['GET','POST'])
 def face_registration():
     if request.method == 'POST':
         user_name = request.args.get('name')
@@ -627,32 +621,23 @@ def face_registration():
 
     return render_template('face_registration.html', detection_status=False)
 
-
 # Define the eye_tracking_video route
 @app.route('/eye_tracking_video')
 def eye_tracking_video():
-    return Response(generate_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
-
+    return Response(g_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
 
 # Define the eye_tracking route
 @app.route('/eye_tracking')
 def eye_tracking():
     return render_template('eye_tracking.html')
 
-
 # Define the student_homepage route
 @app.route('/student_homepage')
 @login_required
 def student_homepage():
     user = User.query.get(current_user.id)  # Retrieve user information from the database
-    print("User ID:", user.id)
-    print("Email:", user.email)
-    print("Name:", user.name)
-    print("Date Joined:", user.date_joined)
-    print("Role:", user.role)
 
     return render_template('student_homepage.html', user=user)
-
 
 @app.route('/student_profile')
 @login_required
@@ -660,20 +645,17 @@ def student_profile():
     user = User.query.get(current_user.id)  # Retrieve user information from the database
     return render_template('student_profile.html', user=user)
 
-
 # Define the staff_homepage route
 @app.route('/staff_homepage')
 @login_required
 def staff_homepage():
     return render_template('staff_homepage.html')
 
-
 # Define the exam route
 @app.route('/exam')
 @login_required
 def exam():
     return render_template('exam.html')
-
 
 # Define the exam1 route
 @app.route('/exam1')
@@ -684,7 +666,6 @@ def exam1():
 
     return render_template('exam1.html')
 
-
 # Define the exam_result
 @app.route('/exam_result')
 @login_required
@@ -693,16 +674,15 @@ def exam_result():
     exam_attempts = Exam_Attempt.query.all()
 
     # Render the exam_result.html template with the exam_attempts data
-    return render_template('exam_result.html', exam_attempts=exam_attempts, user=current_user)
+    return render_template('exam_result.html', exam_attempts=exam_attempts)
 
 
 # Facial Recognition Function
 
 # Define the video_feed route
-@app.route('/video_feed_exam')
-def video_feed_exam():
+@app.route('/face_lock_video')
+def face_lock_video():
     return Response(gen_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
-
 
 # Define the face_lock route
 @app.route('/face_lock')
@@ -722,12 +702,9 @@ def face_lock():
     allow_unlock = current_user_name == detected_user  # Check if detected user matches current user
     message = "User Authenticated. Click the button to proceed." if allow_unlock else "Wrong user detected. Please Refresh the page to authenticate again!"
 
-    return render_template('face_lock.html', allow_unlock=allow_unlock, message=message, detected_user=detected_user,
-                           detected_frame=detected_frame)
-
+    return render_template('face_lock.html', allow_unlock=allow_unlock, message=message, detected_user=detected_user, detected_frame=detected_frame)
 
 fr = None  # FaceRecognition instance
-
 
 # Define the gen_frames function for video streaming
 def gen_frames():
@@ -759,7 +736,6 @@ def face_confidence(face_distance, face_match_threshold=0.6):
         value = (linear_val + ((1.0 - linear_val) * math.pow((linear_val - 0.5) * 2, 0.2))) * 100
         return str(round(value, 2)) + '%'
 
-
 # Define the FaceRecognition class
 class FaceRecognition:
     face_locations = []
@@ -769,7 +745,7 @@ class FaceRecognition:
     known_face_names = []
     process_current_frame = True
 
-    def _init_(self):
+    def __init__(self):
         self.encode_faces()
 
     def encode_faces(self):
@@ -823,7 +799,7 @@ class FaceRecognition:
             name = name.split(".")[0]
             self.face_names.append(f'{name} ({confidence})')
             detected_user = name
-            # print(name)
+
 
         # Display the results
         for (top, right, bottom, left), name in zip(self.face_locations, self.face_names):
@@ -839,25 +815,11 @@ class FaceRecognition:
             cv.putText(frame, name, (left + 6, bottom - 6), cv.FONT_HERSHEY_DUPLEX, 0.8, (255, 255, 255), 1)
         return frame, detected_user
 
-
 # Exam Monitoring Function
 
 
 # Initialize a flag to signal when to stop the frame generation
 stop_frame_generation = False
-
-
-# @app.route('/submit_score', methods=['POST'])
-# def submit_score():
-#     data = request.get_json()
-#     print('data:', data)
-#     score = data.get('score:')  # Get the score from the request data
-#     print('score', score)
-#     exam_attempt = Exam_Attempt(score=score)
-#     db.session.add(exam_attempt)
-#     db.session.commit()
-#     return jsonify({'message': 'Score submitted successfully'})
-
 
 # Route to handle the AJAX request to stop the camera
 @app.route('/stop_camera', methods=['POST'])
@@ -865,27 +827,32 @@ def stop_camera():
     global stop_frame_generation
     stop_frame_generation = True
     data = request.get_json()
-    print(data)
 
     # Calculate the combined time string
     time_taken_minutes = int(elapsed_time_seconds // 60)
     time_taken_seconds = int(elapsed_time_seconds % 60)
     combined_time_string = f'{time_taken_minutes}min{time_taken_seconds}sec'
+
+    # Determine activity based on non_center_eye_count
+    activity = 'Suspicious' if non_center_eye_count > 200 else 'Not Suspicious'
+
     score = data.get('score', 0)
-    print(score)
+
 
     # Create a new Exam_Attempt record and add it to the database
     exam_attempt = Exam_Attempt(
         name=session['user_name'],
         non_center_eye_count=non_center_eye_count,  # Replace with actual non_center_eye_count
         time_taken=combined_time_string,
-        score=score)
+        score=score,
+        activity=activity)
 
-    print(session['user_name'], non_center_eye_count, combined_time_string, score)
+    print(session['user_name'],non_center_eye_count,combined_time_string,score,activity)
     db.session.add(exam_attempt)
     db.session.commit()
 
     return jsonify({'message': 'Camera stopped successfully', 'time_taken': combined_time_string})
+
 
 
 frame_counter = 0
@@ -897,15 +864,12 @@ RIGHT_EYE = [33, 7, 163, 144, 145, 153, 154, 155, 133, 173, 157, 158, 159, 160, 
 map_face_mesh = mp.solutions.face_mesh
 camera = cv.VideoCapture(0)
 
-
 def landmarksDetection(img, results, draw=False):
     img_height, img_width = img.shape[:2]
-    mesh_coords = [(int(point.x * img_width), int(point.y * img_height)) for point in
-                   results.multi_face_landmarks[0].landmark]
+    mesh_coords = [(int(point.x * img_width), int(point.y * img_height)) for point in results.multi_face_landmarks[0].landmark]
     if draw:
         [cv.circle(img, p, 2, (0, 255, 0), -1) for p in mesh_coords]
     return mesh_coords
-
 
 def eyesExtractor(img, eye_coords):
     gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
@@ -914,7 +878,6 @@ def eyesExtractor(img, eye_coords):
     eyes = cv.bitwise_and(gray, gray, mask=mask)
     eyes[mask == 0] = 155
     return eyes
-
 
 def positionEstimator(cropped_eye):
     global non_center_eye_count  # Declare global variable to modify the count inside the function
@@ -925,8 +888,8 @@ def positionEstimator(cropped_eye):
 
     piece = int(w / 3)
     right_piece = threshed_eye[0:h, 0:piece]
-    center_piece = threshed_eye[0:h, piece:piece + piece]
-    left_piece = threshed_eye[0:h, piece + piece:w]
+    center_piece = threshed_eye[0:h, piece:piece+piece]
+    left_piece = threshed_eye[0:h, piece+piece:w]
 
     eye_parts = [np.sum(right_piece == 0), np.sum(center_piece == 0), np.sum(left_piece == 0)]
     max_index = np.argmax(eye_parts)
@@ -936,7 +899,6 @@ def positionEstimator(cropped_eye):
 
     return eye_parts, max_index
 
-
 # Initialize a flag to signal when to stop the frame generation
 stop_frame_generation = False
 # Initialize the non-center eye count
@@ -945,9 +907,8 @@ non_center_eye_count = 0
 start_time = 0
 elapsed_time_seconds = 0
 
-
 # Function to generate frames
-def generate_frames():
+def g_frames():
     global stop_frame_generation
     global frame_counter
     global non_center_eye_count
@@ -974,10 +935,8 @@ def generate_frames():
 
             if results.multi_face_landmarks:
                 mesh_coords = landmarksDetection(frame, results, False)
-                cv.polylines(frame, [np.array([mesh_coords[p] for p in LEFT_EYE], dtype=np.int32)], True, (0, 255, 0),
-                             1, cv.LINE_AA)
-                cv.polylines(frame, [np.array([mesh_coords[p] for p in RIGHT_EYE], dtype=np.int32)], True, (0, 255, 0),
-                             1, cv.LINE_AA)
+                cv.polylines(frame, [np.array([mesh_coords[p] for p in LEFT_EYE], dtype=np.int32)], True, (0, 255, 0), 1, cv.LINE_AA)
+                cv.polylines(frame, [np.array([mesh_coords[p] for p in RIGHT_EYE], dtype=np.int32)], True, (0, 255, 0), 1, cv.LINE_AA)
 
                 right_coords = [mesh_coords[p] for p in RIGHT_EYE]
                 left_coords = [mesh_coords[p] for p in LEFT_EYE]
@@ -989,8 +948,7 @@ def generate_frames():
 
                 # cv.putText(frame, f'R: {max_index_right}', (40, 220), FONTS, 1.0, (0, 0, 255), 2, cv.LINE_AA)
                 # cv.putText(frame, f'L: {max_index_left}', (40, 320), FONTS, 1.0, (0, 0, 255), 2, cv.LINE_AA)
-                cv.putText(frame, f'Non-Center Eye Count: {non_center_eye_count}', (40, 420), FONTS, 1.0,
-                           (255, 255, 255), 2, cv.LINE_AA)
+                cv.putText(frame, f'Non-Center Eye Count: {non_center_eye_count}', (40, 420), FONTS, 1.0, (255, 255, 255), 2, cv.LINE_AA)
 
                 # Calculate the elapsed time and display it on the frame
                 elapsed_time_seconds = time.time() - start_time
@@ -1002,8 +960,7 @@ def generate_frames():
                 continue
 
             # Emit the data through Flask-SocketIO
-            socketio.emit('frame_data',
-                          {'elapsed_time': elapsed_time_seconds, 'non_center_eye_count': non_center_eye_count})
+            socketio.emit('frame_data', {'elapsed_time': elapsed_time_seconds, 'non_center_eye_count': non_center_eye_count})
 
             frame_bytes = buffer.tobytes()
             yield (b'--frame\r\n'
@@ -1011,6 +968,7 @@ def generate_frames():
 
     # Release the camera when loop ends
     camera.release()
+
 
 if __name__ == '__main__':
     with app.app_context():
