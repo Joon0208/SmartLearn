@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Zoom Users</title>
+</head>
+<body>
+    <h1>Zoom Users</h1>
+    <ul>
+        {% for user in users %}
+        <li>{{ user['email'] }}</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>

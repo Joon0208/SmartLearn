@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block title %}Emotion Percentages{% endblock %}
+
+{% block content %}
+  <h1>Emotion Percentages</h1>
+  <table class="table table-bordered">
+    <thead>
+      <tr>
+        <th scope="col">Emotion</th>
+        <th scope="col">Percentage</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for index, row in percentages.iterrows() %}
+      <tr>
+        <td>{{ row['Emotion'] }}</td>
+        <td>{{ row['Percentage'] }}%</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <h2>Emotion Bar Chart</h2>
+  <div>
+    {{ graph_html | safe }}
+  </div>
+{% endblock %}

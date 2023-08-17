@@ -1,0 +1,45 @@
+{% extends "base.html" %} {% block title %} Camera {% endblock %} {% block head
+%}
+<style> .question-container {margin-top: 20px;}
+  h3 {margin-bottom: 10px;}
+  label {margin-left: 10px;}
+  button {margin-top: 10px;}
+  #camera-container {display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    margin-bottom: 20px;}
+
+  #camera-feed {width: 100%;
+    max-width: 570px;
+    height: auto;}
+</style>
+{% endblock %} {% block content %}
+
+<div id="camera-container">
+  <div id="camera-feed">
+    <img src="{{ url_for('views.video_feed') }}" />
+  </div>
+</div>
+<form action="/quiz/{{ question.id }}" method="POST">
+  <div class="question-container">
+    <h3>{{ question.question_text }}</h3>
+    {% for option in question.options %}
+    <div>
+      <input type="radio" name="option" value="{{ option.id }}" required />
+      <label>{{ option.option_text }}</label>
+    </div>
+    {% endfor %}
+    <hr />
+  </div>
+  <div id="next-question-button">
+    <button type="submit"  class="btn btn-primary mt-3">Next Question</button>
+  </div>
+</form>
+
+<!-- <div id="end-assessment-button">
+  <button type="submit">Complete Assessment</button>
+</div> -->
+
+<br>
+<br>
+{% endblock %}

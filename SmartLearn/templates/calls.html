@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Webcam with Video Feed</title>
+</head>
+<body>
+    <h1>Webcam Video Feed</h1>
+    <video id="webcamVideo" autoplay></video>
+    <script>
+        const video = document.getElementById('webcamVideo');
+        
+        // Function to fetch and display video feed from /video_feed2
+        function startVideoFeed() {
+            fetch('/video_feed2')
+                .then(response => response.body.pipeThrough(new TextDecoderStream()))
+                .then(stream => {
+                    const reader = stream.getReader();
+                    let buffer = '';
+                    reader.read().then(function processText({ done, value }) {
+                        if (done) {
+                            return;
+                        }
+                        buffer += value;
+                        const parts = buffer.split('--frame');
+                        if (parts.length > 1) {
+                            buffer = parts.pop();
+                            const frameData = parts.pop();
+                            const blob = new Blob([frameData], { type: 'image/jpeg' });
+                            const imageBitmap = createImageBitmap(blob);
+                            imageBitmap.then(image => {
+                                video.srcObject = imageBitmap;
+                                reader.read().then(processText);
+                            });
+                        }
+                        reader.read().then(processText);
+                    });
+                });
+        }
+
+        // Start fetching and displaying video feed
+        startVideoFeed();
+    </script>
+</body>
+</html>

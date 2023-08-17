@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Bootstrap demo</title>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
+      </head>
+<body>
+<div class="container">
+
+    <div class="card" style="width: 18rem;">
+        <div class="card-body">
+          <h5 class="card-title">Time :{{ meeting_info.time }}</h5>
+          <h6 class="card-subtitle mb-2 text-body-secondary">Password:{{ meeting_info.password }}</h6>
+          <p class="card-text">Duration : {{ meeting_info.duration }}.</p>
+          <p><strong>Join URL:</strong> <a href="zoomus://zoom.us/join?action=join&confno={{ meeting_info.id }}&pwd={{ meeting_info.password }}&wpwd={{ meeting_info.host_password }}&un={{ meeting_info.host_id }}">Join Zoom Meeting</a></p>
+          <a href="{{ meeting_info.join_url }}" class="card-link">click Join</a> 
+          <button onclick="sendEmails()" class="btn btn-primary">Send Meeting URL to All Users</button>
+
+        </div>
+      </div>
+
+
+ 
+</div>
+
+    <script>
+        function sendEmails() {
+            var recipients = ['user1@example.com', 'user2@example.com', 'user3@example.com']; // Replace with your list of recipients
+            var data = {
+                meeting_url: '{{ meeting_info.join_url }}',
+                recipients: recipients
+            };
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', '/send_emails', true);
+            xhr.setRequestHeader('Content-Type', 'application/json');
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState == XMLHttpRequest.DONE) {
+                    if (xhr.status == 200) {
+                        alert("Emails sent successfully to all users!");
+                    } else {
+                        alert("Failed to send emails. Please try again later.");
+                    }
+                }
+            };
+            xhr.send(JSON.stringify(data));
+        }
+    </script>
+
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.min.js" integrity="sha384-Rx+T1VzGupg4BHQYs2gCW9It+akI2MM/mndMCy36UVfodzcJcF0GGLxZIzObiEfa" crossorigin="anonymous"></script>
+  
+</body>
+</html>

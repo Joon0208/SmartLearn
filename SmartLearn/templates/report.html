@@ -1,0 +1,164 @@
+{% extends "base.html" %} {% block title %} Home {% endblock %}
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+{% block content %}
+
+<h4 style="color: blue">Welcome, {{ user.name}}!</h4>
+<hr />
+
+<h1>Report Page</h1>
+<a href="http://127.0.0.1:5000/emotion_percentages" class="btn btn-primary"
+  >Visualization</a
+>
+<br /><br />
+
+<h2>Questions Attempted</h2>
+<div>
+  <table class="table table-bordered">
+    <thead>
+      <tr>
+        <th scope="col">ID</th>
+        <th scope="col">User ID</th>
+        <th scope="col">Question ID</th>
+
+        <th scope="col">Time Taken</th>
+
+        <th scope="col">Result</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for report in reports %}
+      <tr>
+        <td>{{ report.id }}</td>
+        <td>{{ report.user_id}}</td>
+        <td>{{ report.question_id }}</td>
+
+        <td>{{ report.time_taken }}</td>
+
+        <td>{{ report.is_correct }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<br />
+
+<hr />
+
+<!-- <div class="container">
+  <h2 class="mt-4">Correct Answers</h2>
+  <table class="table table-bordered mt-4">
+      <thead class="thead-light">
+          <tr>
+              <th>Question ID</th>
+              <th>Question Text</th>
+              <th>Correct Answer</th>
+          </tr>
+      </thead>
+      <tbody>
+          {% for ans in answers %}
+          <tr>
+              <td>{{ ans.id }}</td>
+              <td>{{ ans.question_text }}</td>
+              <td>{{ ans.correct_answer }}</td>
+              
+          </tr>
+          {% endfor %}
+      </tbody>
+  </table>
+</div> -->
+
+<br />
+
+<div class="container mt-4">
+  <h2>Options Table</h2>
+  <table class="table table-bordered table-hover">
+    <thead class="thead-blue">
+      <tr>
+        <th>Question No.</th>
+        <th>Option Text</th>
+        <th>Option ID</th>
+        <th>Correct Option</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for opt in options %}
+      <tr class="text-primary font-weight">
+        <td>{{ opt.question_id}}</td>
+        <td>{{ opt.option_text }}</td>
+        <td>{{ opt.id }}</td>
+        <!-- <td>{{opt.correct_answer}}</td> -->
+        <td>
+          {{ "Incorrect" if opt.correct_answer is none else opt.correct_answer
+          }}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+<br /><br />
+
+<div class="container">
+  <h2 class="mt-4">Correct Answers and Options</h2>
+  <table class="table table-bordered mt-4">
+    <thead class="thead-light">
+      <tr>
+        <th>ID</th>
+        <th>Question Text</th>
+
+        <th>Option Text</th>
+
+        <th>Correct Option</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for ans in answers %}
+      <tr>
+        <td>{{ ans.id }}</td>
+        <td>{{ ans.question_text }}</td>
+
+        <!-- <td>
+                  {% for opt in options %}
+                      {% if opt.question_id == ans.id %}
+                          {{ opt.option_text }}
+                      {% endif %}
+                  {% endfor %}
+              </td>
+
+              <td>
+                  {% for opt in options %}
+                      {% if opt.question_id == ans.id %}
+                          {{ opt.is_correct }}
+                      {% endif %}
+                  {% endfor %}
+              </td>
+          </tr> -->
+
+        <td>
+          {% set option_counter = namespace(count=1) %} {% for opt in options %}
+          {% if opt.question_id == ans.id %} {{ option_counter.count }}. {{
+          opt.option_text }} {% set option_counter.count = option_counter.count
+          + 1 %} {% endif %} {% endfor %}
+        </td>
+
+        <td>
+          {% set option_counter = namespace(count=1) %} {% for opt in options %}
+          {% if opt.question_id == ans.id %} {% if opt.is_correct %}
+          <p style="color: blue">Option: {{ option_counter.count }}</p>
+          {% endif %} {% set option_counter.count = option_counter.count + 1 %}
+          {% endif %} {% endfor %}
+        </td>
+
+        {% endfor %}
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- Add Bootstrap JS and jQuery scripts for table functionalities (optional) -->
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.1/dist/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+{% endblock %}

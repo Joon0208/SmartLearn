@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Questions and Answers</title>
+</head>
+<body>
+    <h1>Questions and Answers</h1>
+<!-- 
+    {% for question in questions %}
+        <h3>{{ question.question_text }}</h3>
+        <ul>
+            {% for option in question.options %}
+                {% if user_answers.get(question.id) is not none %}
+                    {% if option.is_correct %}
+                        {% if user_answers[question.id] %}
+                            <li style="color: green;">{{ option.option_text }} (Correct)</li>
+                        {% else %}
+                            <li style="color: red;">{{ option.option_text }} (Wrong)</li>
+                        {% endif %}
+                    {% else %}
+                        {% if user_answers[question.id] %}
+                            <li style="color: red;">{{ option.option_text }} (Wrong)</li>
+                        {% else %}
+                            <li>{{ option.option_text }}</li>
+                        {% endif %}
+                    {% endif %}
+                {% else %}
+                    <li>{{ option.option_text}}</li>
+                {% endif %}
+            {% endfor %}
+        </ul>
+    {% endfor %} -->
+
+
+
+
+    {% for question in questions %}
+    <h3>{{ question.question_text }}</h3>
+    <ul>
+        {% set option_count = 0 %}
+        {% for option in question.options %}
+            {% if option.is_correct == False and option_count < 3 %}
+                {% set _ = option_count + 1 %}
+                {% if user_answers.get(question.id) is not none %}
+                    {% if user_answers[question.id] %}
+                        <li style="color: red;">{{ option.option_text[0:2] }}</li>
+                    {% else %}
+                        <li>{{ option.option_text[0:2] }}</li>
+                    {% endif %}
+                {% else %}
+                    <li>{{ option.option_text[0:2] }}</li>
+                {% endif %}
+            {% endif %}
+        {% endfor %}
+    </ul>
+{% endfor %}
+
+
+
+
+</body>
+</html>

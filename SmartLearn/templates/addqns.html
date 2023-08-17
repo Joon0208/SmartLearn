@@ -1,0 +1,73 @@
+{% extends "base.html" %} {% block title %} Home {% endblock %} {% block content
+%}
+<h1>Add Question</h1>
+<br>
+<form action="{{ url_for('views.addqns') }}" method="post">
+  <div class="mb-3">
+    <label for="questionText" class="form-label">Question Text</label>
+    <input
+      type="text"
+      class="form-control"
+      id="questionText"
+      name="question_text"
+      value="What is your favorite color?"
+      required
+    />
+  </div>
+
+  <div class="mb-3">
+    <label for="option1Text" class="form-label">Option 1</label>
+    <!-- <input type="radio" id="option1" name="option1" value="option1" /> -->
+    <input
+      type="text"
+      class="form-control"
+      id="option1Text"
+      name="option1"
+      value="Red"
+      required
+    />
+  </div>
+
+  <div class="mb-3">
+    <label for="option2Text" class="form-label">Option 2</label>
+    <!-- <input type="radio" id="option2" name="option2" value="option2" /> -->
+    <input
+      type="text"
+      class="form-control"
+      id="option2Text"
+      name="option2"
+      value="Blue"
+      required
+    />
+  </div>
+
+  <div class="mb-3">
+    <label for="option3Text" class="form-label">Option 3</label>
+    <!-- <input type="radio" id="option3" name="option3" value="" /> -->
+    <input
+      type="text"
+      class="form-control"
+      id="option3Text"
+      name="option3"
+      value="Green"
+      required
+    />
+  </div>
+
+
+<div class="mb-3">
+    <label for="correct_answer" class="form-label">Correct Option</label>
+     <input
+      type="text"
+      class="form-control"
+      id="correct_answer"
+      name="correct_answer"
+      value="Correct Answer"
+      required
+    />
+  </div>
+
+
+  <button type="submit" class="btn btn-primary">Submit</button>
+</form>
+{% endblock %}

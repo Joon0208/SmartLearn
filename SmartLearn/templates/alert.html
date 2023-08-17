@@ -1,0 +1,54 @@
+{% extends 'base.html' %} {% block content %}
+<div class="container">
+  <div class="row">
+    <div class="col-md-8">
+      <!-- Main content -->
+      <h1>Welcome, {{ user.username }}!</h1>
+      <!-- Your main content goes here -->
+    </div>
+    <div class="col-md-4">
+      <!-- Sidebar -->
+      <div class="sidebar">
+        <h3>Emotion Levels</h3>
+        {% for emotion in emotion_levels %}
+        <div class="progress">
+          <div
+            class="progress-bar"
+            role="progressbar"
+            aria-valuenow=" {{ emotion_levels[emotion] }}%;"
+            aria-valuenow="{{ emotion_levels[emotion] }}"
+            aria-valuemin="0"
+            aria-valuemax="100"
+          >
+            {{ emotion }} - {{ emotion_levels[emotion] }}%
+          </div>
+        </div>
+        {% endfor %}
+        <button id="alert-btn" class="btn btn-danger mt-4">
+          Trigger Alert
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %} {% block scripts %}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+  $(document).ready(function () {
+    $("#alert-btn").click(function () {
+      // Trigger an alert mechanism, e.g., send an AJAX request to the /alert endpoint
+      $.ajax({
+        url: "/alert",
+        type: "POST",
+        contentType: "application/json",
+        success: function () {
+          console.log("Alert triggered!");
+        },
+        error: function (error) {
+          console.error("Error triggering alert:", error);
+        },
+      });
+    });
+  });
+</script>
+{% endblock %}

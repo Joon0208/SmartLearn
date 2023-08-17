@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Start Video Call</title>
+    <!-- Include Zoom Video SDK library -->
+    <script src="https://source.zoom.us/1.9.1/lib/vendor/react.min.js"></script>
+    <script src="https://source.zoom.us/1.9.1/lib/vendor/react-dom.min.js"></script>
+    <script src="https://source.zoom.us/1.9.1/lib/vendor/redux.min.js"></script>
+    <script src="https://source.zoom.us/1.9.1/lib/vendor/redux-thunk.min.js"></script>
+    <script src="https://source.zoom.us/zoom-meeting-1.9.1.min.js"></script>
+</head>
+
+<body>
+    <h1>Start Video Call</h1>
+    <div id="zmmtg-root"></div>
+
+    <script>
+        // Get the JWT token from the Flask app
+        var jwtToken = "{{ jwt_token }}";
+
+        // Initiate the Zoom Video SDK
+        ZoomMtg.setZoomJSLib("https://source.zoom.us/1.9.1/lib", "/av");
+        ZoomMtg.preLoadWasm();
+        ZoomMtg.prepareJssdk();
+
+        // Join the Zoom meeting using the JWT token
+        function joinMeeting() {
+            ZoomMtg.init({
+                leaveUrl: "https://your-website.com", // Replace with your website URL
+                isSupportAV: true,
+                success: function () {
+                    ZoomMtg.join({
+                        signature: jwtToken,
+                        apiKey: "{{ SDK_KEY }}", // Replace with your SDK key
+                        meetingNumber: "{{ MEETING_NUMBER }}", // Replace with your meeting number
+                        userName: "John Doe", // Replace with the participant's name
+                        userEmail: "john@example.com", // Replace with the participant's email
+                        passWord: "{{ MEETING_PASSWORD }}", // Replace with your meeting password (if any)
+                        success: function (res) {
+                            console.log("Meeting join success!");
+                        },
+                        error: function (res) {
+                            console.log("Meeting join error: ", res);
+                        }
+                    });
+                },
+                error: function (res) {
+                    console.log("Zoom SDK error: ", res);
+                }
+            });
+        }
+
+        // Call the function to join the meeting when the page loads
+        joinMeeting();
+    </script>
+</body>
+
+</html>
