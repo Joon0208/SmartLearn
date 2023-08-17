@@ -9,9 +9,9 @@
         <tr>
           <th>ID</th>
           <th>Name</th>
-          <th>Non-Center Eye Count</th>
-          <th>Time Taken</th>
           <th>Score</th>
+          <th>Time Taken</th>
+          <th>Activity</th>
         </tr>
       </thead>
       <tbody>
@@ -19,9 +19,9 @@
           <tr>
             <td>{{ attempt.id }}</td>
             <td>{{ attempt.name }}</td>
-            <td>{{ attempt.non_center_eye_count }}</td>
-            <td>{{ attempt.time_taken }}</td>
             <td>{{ attempt.score }}</td>
+            <td>{{ attempt.time_taken }}</td>
+            <td>{{ attempt.activity }}</td>
           </tr>
         {% endfor %}
       </tbody>

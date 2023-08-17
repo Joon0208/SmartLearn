@@ -40,11 +40,13 @@ class Exam_Attempt(db.Model, UserMixin):
     non_center_eye_count = db.Column(db.Integer)
     time_taken = db.Column(db.String(20))
     score = db.Column(db.Integer)
-    def __init__(self, name, non_center_eye_count, time_taken, score):
+    activity = db.Column(db.String(20))
+    def __init__(self, name, non_center_eye_count, time_taken, score,activity):
         self.name = name
         self.non_center_eye_count = non_center_eye_count
         self.time_taken = time_taken
         self.score = score
+        self.activity = activity
 
 # Define the ImageModel class for database
 class ImageModel(db.Model):
@@ -101,9 +103,6 @@ def signup():
                 flash('Passwords do not match', category='error')
 
             else:
-                # add user to database
-                print(email)
-                print(name)
                 new_user = User(email=email, name=name, password=password1, role='Student')
                 db.session.add(new_user)
                 db.session.commit()
@@ -195,11 +194,6 @@ def eye_tracking():
 @login_required
 def student_homepage():
     user = User.query.get(current_user.id)  # Retrieve user information from the database
-    print("User ID:", user.id)
-    print("Email:", user.email)
-    print("Name:", user.name)
-    print("Date Joined:", user.date_joined)
-    print("Role:", user.role)
 
     return render_template('student_homepage.html', user=user)
 
@@ -363,7 +357,6 @@ class FaceRecognition:
             name = name.split(".")[0]
             self.face_names.append(f'{name} ({confidence})')
             detected_user = name
-            # print(name)
 
 
         # Display the results
@@ -386,41 +379,33 @@ class FaceRecognition:
 # Initialize a flag to signal when to stop the frame generation
 stop_frame_generation = False
 
-# @app.route('/submit_score', methods=['POST'])
-# def submit_score():
-#     data = request.get_json()
-#     print('data:', data)
-#     score = data.get('score:')  # Get the score from the request data
-#     print('score', score)
-#     exam_attempt = Exam_Attempt(score=score)
-#     db.session.add(exam_attempt)
-#     db.session.commit()
-#     return jsonify({'message': 'Score submitted successfully'})
-
-
 # Route to handle the AJAX request to stop the camera
 @app.route('/stop_camera', methods=['POST'])
 def stop_camera():
     global stop_frame_generation
     stop_frame_generation = True
     data = request.get_json()
-    print(data)
 
     # Calculate the combined time string
     time_taken_minutes = int(elapsed_time_seconds // 60)
     time_taken_seconds = int(elapsed_time_seconds % 60)
     combined_time_string = f'{time_taken_minutes}min{time_taken_seconds}sec'
+
+    # Determine activity based on non_center_eye_count
+    activity = 'Suspicious' if non_center_eye_count > 200 else 'Not Suspicious'
+
     score = data.get('score', 0)
-    print(score)
+
 
     # Create a new Exam_Attempt record and add it to the database
     exam_attempt = Exam_Attempt(
         name=session['user_name'],
         non_center_eye_count=non_center_eye_count,  # Replace with actual non_center_eye_count
         time_taken=combined_time_string,
-        score = score)
+        score=score,
+        activity=activity)
 
-    print(session['user_name'],non_center_eye_count,combined_time_string,score)
+    print(session['user_name'],non_center_eye_count,combined_time_string,score,activity)
     db.session.add(exam_attempt)
     db.session.commit()
 
