@@ -1,27 +1,12 @@
-from flask import Blueprint, request, render_template, send_file, redirect, url_for, session, Response, flash, session, \
-    jsonify
-from flask_login import login_required, current_user
-from werkzeug.utils import secure_filename
-# from website import create_app, db
-# from website.models import Question, Option, Report, User, Exam_Attempt, ImageModel
+from flask import request, render_template, send_file, redirect, url_for, session, Response, flash, session, jsonify
+
 import cv2
 import os
-from flask import jsonify
-from datetime import datetime
-import matplotlib.pyplot as plt
 import plotly.graph_objects as go
 from keras.models import load_model
-from keras.models import Sequential
-from keras.layers import Dense, Dropout, Flatten
-from keras.layers import Conv2D, MaxPooling2D
-from flask import render_template
 import pandas as pd
-from flask import render_template
 from flask_login import login_required, current_user, UserMixin, login_manager, login_user, LoginManager
 import numpy as np
-import requests
-from flask import Flask, render_template
-from flask import Flask, redirect, url_for
 from collections import defaultdict
 import face_recognition
 import base64
@@ -41,9 +26,6 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from flask_sqlalchemy import SQLAlchemy
 from Forms import *
-
-# views = Blueprint('views', _name_, template_folder='templates/views_templates')
-
 
 # Initialize the Flask app
 app = Flask(__name__)
@@ -287,10 +269,10 @@ def quiz(question_id):
             next_question = Question.query.get(question.id + 1)
             if next_question:
                 # Redirect to the next question
-                return redirect(url_for('views.quiz', user=current_user, question_id=next_question.id))
+                return redirect(url_for('quiz', user=current_user, question_id=next_question.id))
             else:
                 # Redirect to report if no more questions
-                return redirect(url_for('views.report'))
+                return redirect(url_for('report'))
 
     elif request.method == 'GET':
         session['start_time'] = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S.%f")
@@ -383,7 +365,7 @@ def addqns():
         db.session.add_all([option1qn, option2qn, option3qn, correct_answerqn])
         db.session.commit()
 
-        return redirect(url_for('views.home', user=current_user))
+        return redirect(url_for('home', user=current_user))
     return render_template('addqns.html', user=current_user)
 
 
@@ -838,7 +820,6 @@ def stop_camera():
 
     score = data.get('score', 0)
 
-
     # Create a new Exam_Attempt record and add it to the database
     exam_attempt = Exam_Attempt(
         name=session['user_name'],
@@ -852,8 +833,6 @@ def stop_camera():
     db.session.commit()
 
     return jsonify({'message': 'Camera stopped successfully', 'time_taken': combined_time_string})
-
-
 
 frame_counter = 0
 FONTS = cv.FONT_HERSHEY_COMPLEX

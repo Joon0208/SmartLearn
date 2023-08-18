@@ -2,20 +2,22 @@
 {% block title %}Yammy - Student Exam {% endblock %}
 
 {% block content %}
-  <h1>Python Exam Simulator</h1>
+<div class="container py-5">
+    <h1 class="display-4 text-center mb-4">Python Exam</h1>
 
-  <div class="bg-white py-5">
-    <div class="container py-5">
-      <div class="row align-items-center mb-5">
-        <div class="col-lg-6 order-2 order-lg-1"><i class="fa fa-bar-chart fa-2x mb-3 text-primary"></i>
-          <h2 class="font-weight-light">Exam Monitoring </h2>
-          <div><img src="{{ url_for('eye_tracking_video') }}" alt="Live Stream" id="eye_tracking_video"></div>
+    <div class="bg-white py-5 shadow-sm">
+        <div class="row">
+            <div class="col-lg-12 mb-4 text-center">
+                <h2 class="font-weight-light">Exam Monitoring</h2>
+                <!-- Video displayed at the top of the page -->
+                <div>
+                    <img src="{{ url_for('eye_tracking_video') }}" alt="Live Stream" id="eye_tracking_video" class="img-fluid">
+                </div>
+            </div>
         </div>
-      </div>
-    </div>
-  </div>
-
-  <form id="exam-form" onsubmit="return handleFormSubmission()">
+        <div class="row">
+            <div class="col-lg-6 mb-4">
+                <form id="exam-form" onsubmit="return handleFormSubmission()">
     <!-- Question 1 -->
     <h3>Question 1: What is the output of the following code?</h3>
     <pre><code>
@@ -120,15 +122,20 @@
 
     <!-- Submit Button -->
     <br>
-    <input type="submit" value="Submit">
-  </form>
+                  <div class="mt-4">
+                    <input type="submit" value="Submit" class="btn btn-primary">
+                  </div>
+                </form>
+            </div>
+        </div>
+    </div>
 
-  <div id="result" style="display: none;">
-    <h2>Exam Result</h2>
-    <div id="score"></div>
-    <div id="answers"></div>
-  </div>
-
+    <div id="result" style="display: none;">
+        <h2 class="mt-4 text-center">Exam Result</h2>
+        <div id="score" class="lead font-weight-bold text-center"></div>
+        <div id="answers" class="mt-3 text-center"></div>
+    </div>
+</div>
   <script>
     function handleFormSubmission() {
       // Collect user answers
